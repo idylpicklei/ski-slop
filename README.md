@@ -26,13 +26,17 @@ npm run db:create
 # Apply migrations locally
 npm run db:migrate:local
 
-# Start Astro dev server
+# Astro only (no API / D1)
 npm run dev
 
-# Build + run Pages Functions locally with D1
+# Full stack: static site + Pages Functions + local D1
 cp .dev.vars.example .dev.vars
-npm run pages:dev
+npm run dev:pages
 ```
+
+> **Note:** This is a **Cloudflare Pages** project. Do not run bare `wrangler dev` or
+> `wrangler deploy` — use `npm run dev:pages`, `npm run deploy:pages`, and
+> `npm run deploy:agents` instead.
 
 ## Deploy
 

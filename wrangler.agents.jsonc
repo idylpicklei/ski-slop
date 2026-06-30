@@ -8,7 +8,7 @@
     {
       "binding": "DB",
       "database_name": "ski-slop-db",
-      "database_id": "00000000-0000-0000-0000-000000000001",
+      "database_id": "addac911-e5f4-4f44-939e-b122af86b114",
       "migrations_dir": "migrations"
     }
   ],

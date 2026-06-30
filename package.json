@@ -5,9 +5,11 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
+    "dev:pages": "npm run build && wrangler pages dev",
     "build": "astro build",
     "preview": "astro preview",
-    "pages:dev": "npm run build && wrangler pages dev dist",
+    "pages:dev": "npm run dev:pages",
+    "deploy": "npm run deploy:pages && npm run deploy:agents",
     "deploy:pages": "npm run build && wrangler pages deploy dist --project-name=ski-slop",
     "deploy:agents": "wrangler deploy -c wrangler.agents.jsonc",
     "db:migrate:local": "wrangler d1 migrations apply ski-slop-db --local",
