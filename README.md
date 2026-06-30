@@ -29,14 +29,24 @@ npm run db:migrate:local
 # Astro only (no API / D1)
 npm run dev
 
-# Full stack: static site + Pages Functions + local D1
+# Full stack: static site + API + local D1
 cp .dev.vars.example .dev.vars
 npm run dev:pages
 ```
 
-> **Note:** This is a **Cloudflare Pages** project. Do not run bare `wrangler dev` or
-> `wrangler deploy` — use `npm run dev:pages`, `npm run deploy:pages`, and
-> `npm run deploy:agents` instead.
+## Cloudflare Workers Builds (dashboard settings)
+
+If deploying via **Workers & Pages → ski-slop → Settings → Builds**:
+
+| Setting | Value |
+|---------|--------|
+| Build command | `npm run build` |
+| **Deploy command** | `npx wrangler deploy` |
+| Root directory | `/` |
+
+Do **not** use `wrangler pages deploy` — this project deploys as a **Worker with static assets**.
+
+> The build compiles `functions/` into `dist/_worker.js/` automatically. Your build token handles auth for `wrangler deploy`; no extra API token is needed unless deploy still fails (then add `CLOUDFLARE_ACCOUNT_ID` as a build variable).
 
 ## Deploy
 
@@ -57,13 +67,12 @@ wrangler queues create ski-slop-enrichment
 npm run deploy:agents
 ```
 
-### 3. Cloudflare Pages
+### 3. Cloudflare Pages / Workers
 
-Connect the GitHub repo (`idylpicklei/ski-slop`) in the Cloudflare dashboard:
+Connect the GitHub repo in the Cloudflare dashboard with:
 
 - **Build command:** `npm run build`
-- **Build output:** `dist`
-- **Root directory:** `/`
+- **Deploy command:** `npx wrangler deploy`
 
 Or deploy manually:
 
