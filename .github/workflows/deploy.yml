@@ -23,7 +23,14 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      - name: Deploy to Cloudflare
+      - name: Deploy agents worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy -c wrangler.agents.jsonc
+
+      - name: Deploy site worker
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

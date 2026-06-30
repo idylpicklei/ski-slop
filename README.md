@@ -41,12 +41,43 @@ If deploying via **Workers & Pages → ski-slop → Settings → Builds**:
 | Setting | Value |
 |---------|--------|
 | Build command | `npm run build` |
-| **Deploy command** | `npx wrangler deploy` |
+| **Deploy command** | `npm run deploy:ci` |
 | Root directory | `/` |
 
 Do **not** use `wrangler pages deploy` — this project deploys as a **Worker with static assets**.
 
-> The build compiles `functions/` into `dist/_worker.js/` automatically. Your build token handles auth for `wrangler deploy`; no extra API token is needed unless deploy still fails (then add `CLOUDFLARE_ACCOUNT_ID` as a build variable).
+- **Deploy command:** `npm run deploy:ci`
+
+## Fix authentication error [10000]
+
+This almost always means the **build API token lacks permissions**, not that the account ID is wrong.
+
+### 1. Remove conflicting build variables
+
+In **Settings → Builds → Build variables**, **delete** these if you added them manually:
+
+- `CLOUDFLARE_API_TOKEN` (unless you created a custom token on purpose)
+- `CLOUDFLARE_ACCOUNT_ID` (now set in `wrangler.jsonc` instead)
+
+A wrong or empty `CLOUDFLARE_API_TOKEN` overrides the build token and causes auth failures.
+
+### 2. Create a custom API token with D1 access
+
+The auto-generated build token often **does not include D1**. This project binds D1, so you need a custom token:
+
+1. [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens) → **Create Token** → **Custom token**
+2. Permissions:
+   - **Account → Workers Scripts → Edit**
+   - **Account → D1 → Edit**
+   - **Account → Workers Queues → Edit**
+   - **Account → Workers AI → Read**
+   - **Account → Account Settings → Read**
+3. Account resources: **Include → your account**
+4. In **ski-slop → Settings → Builds → API token**, select this new token (or paste as `CLOUDFLARE_API_TOKEN` secret)
+
+### 3. Regenerate if the token was rolled
+
+If the token was edited or rolled, create a new one and re-select it in Build settings.
 
 ## Deploy
 

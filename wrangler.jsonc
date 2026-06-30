@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "ski-slop",
+  "account_id": "c537fdc75bc4ff82c03a0744a319875c",
   "main": "./dist/_worker.js/index.js",
   "compatibility_date": "2025-03-01",
   "compatibility_flags": ["nodejs_compat_v2"],

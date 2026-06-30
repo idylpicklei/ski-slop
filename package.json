@@ -11,7 +11,7 @@
     "pages:dev": "npm run dev:pages",
     "deploy": "npm run deploy:pages && npm run deploy:agents",
     "deploy:pages": "npm run build && wrangler deploy",
-    "deploy:ci": "wrangler deploy",
+    "deploy:ci": "node scripts/deploy-ci.mjs",
     "deploy:agents": "wrangler deploy -c wrangler.agents.jsonc",
     "db:migrate:local": "wrangler d1 migrations apply ski-slop-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply ski-slop-db --remote",
