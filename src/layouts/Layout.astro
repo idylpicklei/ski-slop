@@ -1,0 +1,42 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = "Ski Slop", description = "North America's ski directory — resorts, rentals, and gear." } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <a class="logo" href="/">Ski <span>Slop</span></a>
+        <nav>
+          <a href="/resorts/">Resorts</a>
+          <a href="/rentals/">Rentals</a>
+          <a href="/products/">Products</a>
+          <a href="/about/">About</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p>Ski Slop — ski hills, rentals, and gear across North America.</p>
+        <p>Data enriched automatically via Cloudflare Agents + OpenStreetMap.</p>
+      </div>
+    </footer>
+  </body>
+</html>

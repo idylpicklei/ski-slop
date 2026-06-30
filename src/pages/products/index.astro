@@ -1,0 +1,55 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { SEED_PRODUCTS } from "../../../shared/resorts-seed";
+
+const categories = [...new Set(SEED_PRODUCTS.map((p) => p.category))];
+---
+
+<Layout title="Ski Products — Ski Slop" description="Browse skis, boots, bindings, and ski gear.">
+  <section class="container detail-hero">
+    <h1>Ski Products</h1>
+    <p>Curated directory of skis, boots, bindings, helmets, and goggles.</p>
+
+    <div class="search-bar">
+      <input type="search" id="search" placeholder="Search products…" />
+      <select id="category-filter">
+        <option value="">All categories</option>
+        {categories.map((c) => (
+          <option value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+        ))}
+      </select>
+    </div>
+
+    <div id="product-list" class="card-grid">
+      {SEED_PRODUCTS.map((p) => (
+        <article class="card" data-category={p.category}>
+          <h3>{p.name}</h3>
+          <p class="meta">{p.brand} · {p.category}</p>
+          <p>{p.description}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const search = document.getElementById("search") as HTMLInputElement;
+  const category = document.getElementById("category-filter") as HTMLSelectElement;
+  const cards = document.querySelectorAll("#product-list .card");
+
+  function filterProducts() {
+    const q = search?.value.toLowerCase() ?? "";
+    const cat = category?.value ?? "";
+
+    cards.forEach((card) => {
+      const el = card as HTMLElement;
+      const text = el.textContent?.toLowerCase() ?? "";
+      const matchCat = !cat || el.dataset.category === cat;
+      const matchQ = !q || text.includes(q);
+      el.style.display = matchCat && matchQ ? "" : "none";
+    });
+  }
+
+  search?.addEventListener("input", filterProducts);
+  category?.addEventListener("change", filterProducts);
+</script>

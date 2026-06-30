@@ -1,0 +1,42 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="About — Ski Slop" description="How Ski Slop sources and enriches ski resort and rental data.">
+  <section class="container detail-hero">
+    <h1>About Ski Slop</h1>
+  </section>
+
+  <article class="container prose">
+    <p>
+      Ski Slop is a North American directory for ski resorts, rental shops, and gear.
+      Our goal is to help skiers and snowboarders find hills and equipment near them quickly.
+    </p>
+
+    <h2>How data is sourced</h2>
+    <ul>
+      <li><strong>Manual curation</strong> — flagship resorts and products are hand-picked for accuracy.</li>
+      <li><strong>OpenStreetMap</strong> — resort and rental locations are discovered via OSM Overpass queries.</li>
+      <li><strong>Cloudflare Agents</strong> — production agents running on Workers AI normalize and enrich listings nightly.</li>
+    </ul>
+
+    <h2>Freshness</h2>
+    <p>
+      Regions are re-enriched on a rolling 30-day schedule. Each run is logged in our database
+      so we can track what changed and when.
+    </p>
+
+    <h2>Technology</h2>
+    <ul>
+      <li>Frontend: Astro on Cloudflare Pages</li>
+      <li>Database: Cloudflare D1 (SQL)</li>
+      <li>Agents: Cloudflare Agents SDK + Workers AI + Queues + Cron</li>
+    </ul>
+
+    <p>
+      <a href="/resorts/">Browse resorts</a> ·
+      <a href="/rentals/">Find rentals</a> ·
+      <a href="/products/">Explore products</a>
+    </p>
+  </article>
+</Layout>

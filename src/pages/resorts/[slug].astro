@@ -1,0 +1,75 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { FLAGSHIP_RESORTS } from "../../../shared/resorts-seed";
+
+export function getStaticPaths() {
+  return FLAGSHIP_RESORTS.map((resort) => ({
+    params: { slug: resort.slug },
+    props: { resort },
+  }));
+}
+
+const { resort } = Astro.props;
+---
+
+<Layout title={`${resort.name} — Ski Slop`} description={resort.summary}>
+  <section class="container detail-hero">
+    <h1>{resort.name}</h1>
+    <p class="meta">{resort.region_slug.toUpperCase()}</p>
+    <p>{resort.summary}</p>
+
+    <div class="stats">
+      <div class="stat">
+        <strong>{resort.trail_count}</strong>
+        <span>Trails</span>
+      </div>
+      <div class="stat">
+        <strong>{resort.elevation_ft.toLocaleString()}</strong>
+        <span>Summit (ft)</span>
+      </div>
+      <div class="stat">
+        <strong>{resort.lat.toFixed(2)}°, {resort.lng.toFixed(2)}°</strong>
+        <span>Coordinates</span>
+      </div>
+    </div>
+
+    {resort.website && (
+      <p><a class="btn" href={resort.website} target="_blank" rel="noopener">Official website</a></p>
+    )}
+  </section>
+
+  <section class="container">
+    <h2 class="section-title">Nearby rentals</h2>
+    <div id="nearby-rentals" class="card-grid">
+      <p class="loading">Loading nearby rentals…</p>
+    </div>
+  </section>
+</Layout>
+
+<script define:vars={{ slug: resort.slug }}>
+  const container = document.getElementById("nearby-rentals");
+
+  fetch(`/api/resorts/${slug}`)
+    .then((r) => r.json())
+    .then((data) => {
+      if (!container) return;
+      const rentals = data.nearby_rentals ?? [];
+      if (!rentals.length) {
+        container.innerHTML = '<p class="empty">No rental shops listed nearby yet.</p>';
+        return;
+      }
+      container.innerHTML = rentals
+        .map(
+          (r) =>
+            `<article class="card">
+              <h3>${r.name}</h3>
+              <p class="meta">${r.address ?? ""}${r.distance_miles ? ` · ${Number(r.distance_miles).toFixed(1)} mi` : ""}</p>
+              <p>${(r.summary ?? "").slice(0, 120)}</p>
+            </article>`,
+        )
+        .join("");
+    })
+    .catch(() => {
+      if (container) container.innerHTML = '<p class="empty">Could not load rentals.</p>';
+    });
+</script>

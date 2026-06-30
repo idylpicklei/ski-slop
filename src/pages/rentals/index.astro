@@ -1,0 +1,70 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Ski Rentals — Ski Slop" description="Find ski and snowboard rental shops across North America.">
+  <section class="container detail-hero">
+    <h1>Ski Rentals</h1>
+    <p>Find equipment rental shops near popular ski destinations.</p>
+
+    <div class="search-bar">
+      <button class="btn" id="use-location">Rentals near me</button>
+    </div>
+
+    <div id="rental-list" class="card-grid">
+      <p class="loading">Loading rentals…</p>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const list = document.getElementById("rental-list");
+
+  async function renderRentals(url: string) {
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!list) return;
+
+      const rentals = data.rentals ?? [];
+      if (!rentals.length) {
+        list.innerHTML = '<p class="empty">No rentals found.</p>';
+        return;
+      }
+
+      list.innerHTML = rentals
+        .map(
+          (r: {
+            name: string;
+            region_name: string;
+            nearest_resort_name: string;
+            address: string;
+            summary: string;
+            distance_miles?: number;
+          }) =>
+            `<article class="card">
+              <h3>${r.name}</h3>
+              <p class="meta">${r.region_name ?? ""}${r.nearest_resort_name ? ` · near ${r.nearest_resort_name}` : ""}${r.distance_miles ? ` · ${r.distance_miles.toFixed(1)} mi` : ""}</p>
+              <p>${r.address ?? ""}</p>
+              <p>${(r.summary ?? "").slice(0, 120)}</p>
+            </article>`,
+        )
+        .join("");
+    } catch {
+      if (list) list.innerHTML = '<p class="empty">Failed to load rentals.</p>';
+    }
+  }
+
+  renderRentals("/api/rentals/");
+
+  document.getElementById("use-location")?.addEventListener("click", () => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        if (list) list.innerHTML = '<p class="loading">Finding rentals near you…</p>';
+        renderRentals(`/api/rentals/nearest?lat=${lat}&lng=${lng}&limit=12`);
+      },
+      () => alert("Location access denied."),
+    );
+  });
+</script>

@@ -1,0 +1,83 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { NA_REGIONS } from "../../../shared/regions-data";
+---
+
+<Layout title="Ski Resorts — Ski Slop" description="Browse ski resorts across North America by state and province.">
+  <section class="container detail-hero">
+    <h1>Ski Resorts</h1>
+    <p>Explore ski hills across the United States and Canada.</p>
+
+    <div class="search-bar">
+      <input type="search" id="search" placeholder="Search resorts…" />
+      <select id="region-filter">
+        <option value="">All regions</option>
+        {NA_REGIONS.map((r) => (
+          <option value={r.slug}>{r.name} ({r.country})</option>
+        ))}
+      </select>
+    </div>
+
+    <div id="resort-list" class="card-grid">
+      <p class="loading">Loading resorts…</p>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const list = document.getElementById("resort-list");
+  const search = document.getElementById("search") as HTMLInputElement;
+  const regionFilter = document.getElementById("region-filter") as HTMLSelectElement;
+
+  const params = new URLSearchParams(window.location.search);
+  const initialRegion = params.get("region");
+  if (initialRegion && regionFilter) {
+    regionFilter.value = initialRegion;
+  }
+
+  async function loadResorts() {
+    const q = search?.value.trim();
+    const region = regionFilter?.value;
+    const url = new URL("/api/resorts/", window.location.origin);
+    if (q) url.searchParams.set("q", q);
+    if (region) url.searchParams.set("region", region);
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!list) return;
+
+      if (!data.resorts?.length) {
+        list.innerHTML = '<p class="empty">No resorts found. Try a different region or search term.</p>';
+        return;
+      }
+
+      list.innerHTML = data.resorts
+        .map(
+          (r: {
+            slug: string;
+            name: string;
+            region_name: string;
+            trail_count: number;
+            elevation_ft: number;
+            summary: string;
+          }) =>
+            `<article class="card">
+              <h3><a href="/resorts/${r.slug}/">${r.name}</a></h3>
+              <p class="meta">${r.region_name ?? ""} · ${r.trail_count ?? "?"} trails · ${r.elevation_ft ?? "?"} ft summit</p>
+              <p>${(r.summary ?? "").slice(0, 140)}</p>
+            </article>`,
+        )
+        .join("");
+    } catch {
+      if (list) list.innerHTML = '<p class="empty">Failed to load resorts.</p>';
+    }
+  }
+
+  search?.addEventListener("input", () => {
+    clearTimeout((search as unknown as { _t?: number })._t);
+    (search as unknown as { _t?: number })._t = window.setTimeout(loadResorts, 300);
+  });
+  regionFilter?.addEventListener("change", loadResorts);
+  loadResorts();
+</script>

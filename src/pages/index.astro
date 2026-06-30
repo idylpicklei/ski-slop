@@ -1,0 +1,105 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { FLAGSHIP_RESORTS } from "../../shared/resorts-seed";
+import { NA_REGIONS } from "../../shared/regions-data";
+
+const usRegions = NA_REGIONS.filter((r) => r.country === "US");
+const caRegions = NA_REGIONS.filter((r) => r.country === "CA");
+---
+
+<Layout title="Ski Slop — Find ski resorts and rentals near you">
+  <section class="hero container">
+    <h1>Find your next ski day</h1>
+    <p>
+      Browse North American ski resorts, discover nearby rental shops, and explore
+      gear — powered by Cloudflare Agents that keep listings fresh.
+    </p>
+
+    <div class="search-bar">
+      <button class="btn" id="use-location">Use my location</button>
+      <a class="btn btn-secondary" href="/resorts/">Browse all resorts</a>
+    </div>
+
+    <div id="nearest-results" class="card-grid" hidden></div>
+    <p id="location-status" class="loading" hidden>Finding resorts near you…</p>
+  </section>
+
+  <section class="container">
+    <h2 class="section-title">Featured resorts</h2>
+    <div class="card-grid">
+      {FLAGSHIP_RESORTS.slice(0, 6).map((resort) => (
+        <article class="card">
+          <h3><a href={`/resorts/${resort.slug}/`}>{resort.name}</a></h3>
+          <p class="meta">{resort.region_slug.toUpperCase()} · {resort.trail_count} trails</p>
+          <p>{resort.summary.slice(0, 120)}…</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="container">
+    <h2 class="section-title">Browse by region</h2>
+    <h3>United States</h3>
+    <div class="region-list">
+      {usRegions.map((r) => (
+        <a class="region-pill" href={`/resorts/?region=${r.slug}`}>{r.name}</a>
+      ))}
+    </div>
+    <h3>Canada</h3>
+    <div class="region-list">
+      {caRegions.map((r) => (
+        <a class="region-pill" href={`/resorts/?region=${r.slug}`}>{r.name}</a>
+      ))}
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const btn = document.getElementById("use-location");
+  const status = document.getElementById("location-status");
+  const results = document.getElementById("nearest-results");
+
+  btn?.addEventListener("click", () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported in your browser.");
+      return;
+    }
+
+    status?.removeAttribute("hidden");
+    results?.setAttribute("hidden", "true");
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        try {
+          const res = await fetch(`/api/resorts/nearest?lat=${lat}&lng=${lng}&limit=6`);
+          const data = await res.json();
+          status?.setAttribute("hidden", "true");
+          if (!results) return;
+          results.removeAttribute("hidden");
+
+          if (!data.resorts?.length) {
+            results.innerHTML = '<p class="empty">No resorts found nearby yet. Try browsing by region.</p>';
+            return;
+          }
+
+          results.innerHTML = data.resorts
+            .map(
+              (r: { slug: string; name: string; region_name: string; distance_miles: number; summary: string }) =>
+                `<article class="card">
+                  <h3><a href="/resorts/${r.slug}/">${r.name}</a></h3>
+                  <p class="meta">${r.region_name ?? ""} · ${r.distance_miles?.toFixed(1) ?? "?"} mi away</p>
+                  <p>${(r.summary ?? "").slice(0, 120)}</p>
+                </article>`,
+            )
+            .join("");
+        } catch {
+          status!.textContent = "Could not load nearby resorts.";
+        }
+      },
+      () => {
+        status!.textContent = "Location access denied. Browse resorts by region instead.";
+      },
+    );
+  });
+</script>

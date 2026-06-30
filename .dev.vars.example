@@ -1,0 +1,2 @@
+# Local development secrets (never commit)
+ADMIN_TOKEN=dev-admin-token-change-me
