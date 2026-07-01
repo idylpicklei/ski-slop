@@ -53,7 +53,7 @@
   "migrations": [
     {
       "tag": "v1",
-      "new_classes": ["ResortEnrichmentAgent", "RentalEnrichmentAgent"]
+      "new_sqlite_classes": ["ResortEnrichmentAgent", "RentalEnrichmentAgent"]
     }
   ]
 }
