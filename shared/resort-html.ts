@@ -46,7 +46,6 @@ export function renderResortHtml(resort: ResortPageData): string {
       <a class="logo" href="/">Ski <span>Slop</span></a>
       <nav>
         <a href="/resorts/">Resorts</a>
-        <a href="/idaho/">Idaho</a>
         <a href="/rentals/">Rentals</a>
         <a href="/products/">Products</a>
         <a href="/about/">About</a>

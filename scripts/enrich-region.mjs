@@ -50,7 +50,7 @@ async function main() {
   }
 
   console.log("Queued:", body);
-  console.log(`\nWatch results at: ${site}/idaho/`);
+  console.log(`\nWatch results at: ${site}/resorts/?region=${regionSlug}`);
   console.log(`Region stats:   ${site}/api/regions/${regionSlug}`);
 }
 
