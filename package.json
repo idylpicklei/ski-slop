@@ -15,6 +15,7 @@
     "deploy": "npm run deploy:pages",
     "deploy:pages": "npm run build && wrangler deploy",
     "deploy:ci": "node scripts/deploy-ci.mjs",
+    "ci:deploy": "node scripts/ci-deploy.mjs",
     "queues:create": "wrangler queues create ski-slop-enrichment",
     "enrich:idaho": "node scripts/enrich-region.mjs us-id --reset",
     "enrich:region": "node scripts/enrich-region.mjs",

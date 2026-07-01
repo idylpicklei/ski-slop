@@ -107,6 +107,19 @@ npm run deploy:pages
 
 ### Secrets
 
+**Cloudflare Workers Builds** uses the build token in the dashboard (see above).
+
+**GitHub Actions** (`.github/workflows/deploy.yml`) needs these repository secrets:
+
+| Secret | Value |
+|--------|--------|
+| `CLOUDFLARE_API_TOKEN` | API token with Workers Scripts, D1, Queues, Workers AI, Account Read |
+| `CLOUDFLARE_ACCOUNT_ID` | `c537fdc75bc4ff82c03a0744a319875c` |
+
+Add them at **GitHub repo → Settings → Secrets and variables → Actions → New repository secret**.
+
+Use **either** Cloudflare Workers Builds **or** GitHub Actions for deploy — not both on every push.
+
 ```bash
 echo "your-secret" | wrangler secret put ADMIN_TOKEN
 ```

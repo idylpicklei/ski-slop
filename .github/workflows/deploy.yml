@@ -1,9 +1,12 @@
 name: Deploy Ski Slop
 
+# Disable this workflow if you deploy via Cloudflare Workers Builds (dashboard).
+# You only need ONE deploy pipeline — not both GHA and Workers Builds on push.
+
 on:
+  workflow_dispatch:
   push:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
   deploy:
@@ -11,28 +14,27 @@ jobs:
     name: Build and deploy
     permissions:
       contents: read
-      deployments: write
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version-file: ".nvmrc"
           cache: npm
 
-      - run: npm ci
-      - run: npm run build
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Apply D1 migrations
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: d1 migrations apply ski-slop-db --remote
+      - name: Build
+        run: npm run build
 
-      - name: Deploy
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy
+      - name: Verify dist output
+        run: |
+          test -f dist/.assetsignore || (echo "::error::dist/.assetsignore missing — build step failed" && exit 1)
+          test -f dist/_worker.js/index.js || (echo "::error::dist/_worker.js/index.js missing — functions build failed" && exit 1)
+
+      - name: Deploy to Cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/ci-deploy.mjs
