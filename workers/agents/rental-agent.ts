@@ -34,6 +34,7 @@ export class RentalEnrichmentAgent extends Agent<AgentEnv, RentalAgentState> {
     let upserted = 0;
     try {
       const elements = await fetchSkiRentalsFromOsm(
+        region.slug,
         region.center_lat,
         region.center_lng,
       );

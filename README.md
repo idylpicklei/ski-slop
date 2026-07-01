@@ -87,6 +87,7 @@ If the token was edited or rolled, create a new one and re-select it in Build se
 npm run db:create
 # Update database_id in wrangler.jsonc
 npm run db:migrate:remote
+# Only if the queue does not exist yet:
 npm run queues:create
 ```
 
@@ -116,6 +117,48 @@ curl -X POST https://your-site.pages.dev/api/admin/enqueue \
   -d '{"regionSlug":"us-co","type":"both"}'
 ```
 
+## Idaho resort agent
+
+The **ResortEnrichmentAgent** scans OpenStreetMap across Idaho (`us-id`), normalizes results with Workers AI, and saves them to D1. Listings appear on:
+
+- [/idaho/](https://your-site/idaho/) — Idaho landing page
+- [/resorts/?region=us-id](https://your-site/resorts/?region=us-id) — filterable list
+- `/resorts/{slug}/` — dynamic detail pages for agent-discovered resorts
+
+### Run the Idaho scan
+
+1. Set the admin secret on your Worker:
+   ```bash
+   echo "your-secret" | wrangler secret put ADMIN_TOKEN
+   ```
+
+2. Apply migrations (includes extra Idaho seed resorts):
+   ```bash
+   npm run db:migrate:remote
+   ```
+
+3. Trigger the agent (replace `SITE` with your deployed URL):
+   ```bash
+   set ADMIN_TOKEN=your-secret
+   set SITE=https://ski-slop.YOUR_SUBDOMAIN.workers.dev
+   npm run enrich:idaho
+   ```
+
+   Or with curl:
+   ```bash
+   curl -X POST "$SITE/api/admin/enqueue" \
+     -H "Authorization: Bearer $ADMIN_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"regionSlug":"us-id","type":"both"}'
+   ```
+
+4. Check progress:
+   ```bash
+   curl "$SITE/api/regions/us-id"
+   ```
+
+The agent queries the full **US-ID** boundary in OpenStreetMap, then queues a rental scan for the same region.
+
 ## API endpoints
 
 | Method | Path | Description |
@@ -127,6 +170,9 @@ curl -X POST https://your-site.pages.dev/api/admin/enqueue \
 | GET | `/api/rentals/nearest` | Nearest rentals |
 | GET | `/api/products` | List products |
 | POST | `/api/admin/enqueue` | Queue region enrichment (auth required) |
+| POST | `/api/admin/regions/:slug/reset` | Reset region scan status (auth required) |
+| GET | `/api/regions/:slug` | Region stats + resort list |
+| GET | `/resorts/:slug` | HTML resort detail (agent-populated) |
 
 ## Project structure
 

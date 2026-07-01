@@ -20,9 +20,7 @@ if (process.env.CLOUDFLARE_API_TOKEN === "") {
   delete process.env.CLOUDFLARE_API_TOKEN;
 }
 
-// Create queue once; ignore error if it already exists.
-run(["queues", "create", "ski-slop-enrichment"], { allowFailure: true });
-
+// Queue must already exist (create once with: npm run queues:create)
 run(["deploy"]);
 
 console.log("\n✔ Deploy complete");

@@ -34,6 +34,68 @@ export async function finishAgentRun(
     .run();
 }
 
+export async function getRegionBySlug(
+  db: D1Database,
+  slug: string,
+): Promise<RegionRow | null> {
+  return db
+    .prepare("SELECT * FROM regions WHERE slug = ?")
+    .bind(slug)
+    .first<RegionRow>();
+}
+
+export async function resetRegionEnrichment(
+  db: D1Database,
+  slug: string,
+): Promise<boolean> {
+  const result = await db
+    .prepare(
+      `UPDATE regions SET enrichment_status = 'pending', last_enriched_at = NULL WHERE slug = ?`,
+    )
+    .bind(slug)
+    .run();
+  return (result.meta.changes ?? 0) > 0;
+}
+
+export async function getRegionStats(
+  db: D1Database,
+  slug: string,
+): Promise<{
+  region: RegionRow | null;
+  resort_count: number;
+  rental_count: number;
+  last_run: Record<string, unknown> | null;
+}> {
+  const region = await getRegionBySlug(db, slug);
+  if (!region) {
+    return { region: null, resort_count: 0, rental_count: 0, last_run: null };
+  }
+
+  const resortCount = await db
+    .prepare("SELECT COUNT(*) as count FROM ski_resorts WHERE region_id = ?")
+    .bind(region.id)
+    .first<{ count: number }>();
+
+  const rentalCount = await db
+    .prepare("SELECT COUNT(*) as count FROM ski_rentals WHERE region_id = ?")
+    .bind(region.id)
+    .first<{ count: number }>();
+
+  const lastRun = await db
+    .prepare(
+      `SELECT * FROM agent_runs WHERE region_id = ? ORDER BY started_at DESC LIMIT 1`,
+    )
+    .bind(region.id)
+    .first();
+
+  return {
+    region,
+    resort_count: resortCount?.count ?? 0,
+    rental_count: rentalCount?.count ?? 0,
+    last_run: lastRun ?? null,
+  };
+}
+
 export async function getRegion(
   db: D1Database,
   regionId: number,

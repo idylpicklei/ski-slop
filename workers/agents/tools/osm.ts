@@ -1,14 +1,11 @@
+import {
+  bboxToOverpass,
+  getRegionBbox,
+  getRegionIso,
+} from "../../../shared/region-bboxes";
 import type { OsmElement } from "../types";
 
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
-
-function regionBbox(lat: number, lng: number, delta = 2.5): string {
-  const south = lat - delta;
-  const north = lat + delta;
-  const west = lng - delta;
-  const east = lng + delta;
-  return `${south},${west},${north},${east}`;
-}
 
 async function fetchOverpass(query: string, retries = 3): Promise<OsmElement[]> {
   for (let attempt = 0; attempt < retries; attempt++) {
@@ -34,18 +31,44 @@ async function fetchOverpass(query: string, retries = 3): Promise<OsmElement[]> 
   throw new Error("Overpass request failed after retries");
 }
 
+function skiResortSelectors(areaVar: string): string {
+  return `
+      node["leisure"="ski_resort"](${areaVar});
+      way["leisure"="ski_resort"](${areaVar});
+      relation["leisure"="ski_resort"](${areaVar});
+      way["landuse"="winter_sports"](${areaVar});
+      way["sport"="skiing"]["name"](${areaVar});
+      node["sport"="skiing"]["name"](${areaVar});
+      way["piste:type"]["name"](${areaVar});
+      relation["site"="piste"]["name"](${areaVar});
+  `;
+}
+
 export async function fetchSkiResortsFromOsm(
+  regionSlug: string,
   centerLat: number,
   centerLng: number,
 ): Promise<OsmElement[]> {
-  const bbox = regionBbox(centerLat, centerLng);
+  const iso = getRegionIso(regionSlug);
+
+  if (iso) {
+    const query = `
+      [out:json][timeout:120];
+      area["ISO3166-2"="${iso}"]->.searchArea;
+      (
+        ${skiResortSelectors("area.searchArea")}
+      );
+      out center tags;
+    `;
+    const results = await fetchOverpass(query);
+    if (results.length > 0) return results;
+  }
+
+  const bbox = bboxToOverpass(getRegionBbox(regionSlug, centerLat, centerLng));
   const query = `
-    [out:json][timeout:60];
+    [out:json][timeout:120];
     (
-      node["leisure"="ski_resort"](${bbox});
-      way["leisure"="ski_resort"](${bbox});
-      node["sport"="skiing"]["name"](${bbox});
-      way["sport"="skiing"]["name"](${bbox});
+      ${skiResortSelectors(bbox)}
     );
     out center tags;
   `;
@@ -53,20 +76,36 @@ export async function fetchSkiResortsFromOsm(
 }
 
 export async function fetchSkiRentalsFromOsm(
+  regionSlug: string,
   centerLat: number,
   centerLng: number,
 ): Promise<OsmElement[]> {
-  const bbox = regionBbox(centerLat, centerLng, 1.5);
-  const query = `
-    [out:json][timeout:60];
-    (
-      node["shop"="sports"]["name"~"ski|snowboard|rental",i](${bbox});
-      node["shop"="rental"]["name"~"ski|snowboard",i](${bbox});
-      way["shop"="sports"]["name"~"ski|snowboard|rental",i](${bbox});
-    );
-    out center tags;
-  `;
+  const iso = getRegionIso(regionSlug);
+  const query = iso
+    ? `
+      [out:json][timeout:90];
+      area["ISO3166-2"="${iso}"]->.searchArea;
+      (
+        ${rentalSelectors("area.searchArea")}
+      );
+      out center tags;
+    `
+    : `
+      [out:json][timeout:90];
+      (
+        ${rentalSelectors(bboxToOverpass(getRegionBbox(regionSlug, centerLat, centerLng, 1.5)))}
+      );
+      out center tags;
+    `;
   return fetchOverpass(query);
+}
+
+function rentalSelectors(areaVar: string): string {
+  return `
+      node["shop"="sports"]["name"~"ski|snowboard|rental",i](${areaVar});
+      node["shop"="rental"]["name"~"ski|snowboard",i](${areaVar});
+      way["shop"="sports"]["name"~"ski|snowboard|rental",i](${areaVar});
+  `;
 }
 
 export function osmElementCoords(el: OsmElement): { lat: number; lng: number } | null {
@@ -81,4 +120,21 @@ export function osmElementCoords(el: OsmElement): { lat: number; lng: number } |
 
 export function osmElementName(el: OsmElement): string | null {
   return el.tags?.name ?? el.tags?.["name:en"] ?? null;
+}
+
+/** Skip OSM elements that are clearly not public ski hills */
+export function isLikelySkiResort(el: OsmElement): boolean {
+  const name = osmElementName(el);
+  if (!name) return false;
+  const tags = el.tags ?? {};
+  if (tags.leisure === "ski_resort") return true;
+  if (tags.landuse === "winter_sports") return true;
+  if (tags.sport === "skiing") return true;
+  if (tags.site === "piste") return true;
+  if (tags["piste:type"]) return Boolean(name);
+  const lower = name.toLowerCase();
+  if (lower.includes("ski") || lower.includes("snow") || lower.includes("mountain")) {
+    return true;
+  }
+  return false;
 }

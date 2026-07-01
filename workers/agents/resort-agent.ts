@@ -8,7 +8,7 @@ import {
   startAgentRun,
   upsertResort,
 } from "./tools/d1";
-import { fetchSkiResortsFromOsm } from "./tools/osm";
+import { fetchSkiResortsFromOsm, isLikelySkiResort } from "./tools/osm";
 
 interface ResortAgentState {
   regionId: number | null;
@@ -35,12 +35,14 @@ export class ResortEnrichmentAgent extends Agent<AgentEnv, ResortAgentState> {
     let upserted = 0;
     try {
       const elements = await fetchSkiResortsFromOsm(
+        region.slug,
         region.center_lat,
         region.center_lng,
       );
 
       const seen = new Set<string>();
       for (const el of elements) {
+        if (!isLikelySkiResort(el)) continue;
         const normalized = await normalizeResortWithAi(
           this.env,
           el,

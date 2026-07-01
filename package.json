@@ -13,6 +13,8 @@
     "deploy:pages": "npm run build && wrangler deploy",
     "deploy:ci": "node scripts/deploy-ci.mjs",
     "queues:create": "wrangler queues create ski-slop-enrichment",
+    "enrich:idaho": "node scripts/enrich-region.mjs us-id --reset",
+    "enrich:region": "node scripts/enrich-region.mjs",
     "db:migrate:local": "wrangler d1 migrations apply ski-slop-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply ski-slop-db --remote",
     "db:create": "wrangler d1 create ski-slop-db",
