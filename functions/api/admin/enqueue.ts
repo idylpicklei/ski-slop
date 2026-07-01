@@ -14,7 +14,7 @@ export const onRequestPost: PagesFunction<Env> = async ({
 
   const body = (await request.json()) as {
     regionSlug?: string;
-    type?: "resort" | "rental" | "both";
+    type?: "resort" | "rental" | "both" | "deal";
   };
 
   if (!body.regionSlug) {
@@ -32,7 +32,12 @@ export const onRequestPost: PagesFunction<Env> = async ({
   }
 
   const type = body.type ?? "both";
-  if (type === "rental") {
+  if (type === "deal") {
+    await env.ENRICHMENT_QUEUE.send({
+      type: "deal",
+      regionId: region.id,
+    });
+  } else if (type === "rental") {
     await env.ENRICHMENT_QUEUE.send({
       type: "rental",
       regionId: region.id,

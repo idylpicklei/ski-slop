@@ -2,7 +2,7 @@ import { routeAgentRequest } from "agents";
 import { RentalEnrichmentAgent } from "./rental-agent";
 import { ResortEnrichmentAgent } from "./resort-agent";
 import type { AgentEnv, EnrichmentMessage } from "./types";
-import { getPendingRegions } from "./tools/d1";
+import { getPendingRegions, finishAgentRun, startAgentRun } from "./tools/d1";
 
 async function dispatchToAgent(
   env: AgentEnv,
@@ -24,6 +24,17 @@ async function dispatchToAgent(
   );
 }
 
+async function handleDealScan(env: AgentEnv, regionId: number): Promise<void> {
+  const runId = await startAgentRun(env.DB, "deal", regionId);
+  await finishAgentRun(
+    env.DB,
+    runId,
+    "failed",
+    0,
+    "DealScannerAgent not implemented yet — see docs/deal-scanner-agent.md",
+  );
+}
+
 export default {
   async fetch(request: Request, env: AgentEnv): Promise<Response> {
     const url = new URL(request.url);
@@ -31,7 +42,7 @@ export default {
     if (url.pathname === "/enqueue" && request.method === "POST") {
       const body = (await request.json()) as {
         regionId?: number;
-        type?: "resort" | "rental" | "both";
+        type?: "resort" | "rental" | "both" | "deal";
       };
 
       if (!body.regionId) {
@@ -39,7 +50,12 @@ export default {
       }
 
       const type = body.type ?? "both";
-      if (type === "rental") {
+      if (type === "deal") {
+        await env.ENRICHMENT_QUEUE.send({
+          type: "deal",
+          regionId: body.regionId,
+        });
+      } else if (type === "rental") {
         await env.ENRICHMENT_QUEUE.send({
           type: "rental",
           regionId: body.regionId,
@@ -71,7 +87,11 @@ export default {
     for (const message of batch.messages) {
       const { type, regionId } = message.body;
       try {
-        await dispatchToAgent(env, type, regionId);
+        if (type === "deal") {
+          await handleDealScan(env, regionId);
+        } else {
+          await dispatchToAgent(env, type, regionId);
+        }
         message.ack();
       } catch (err) {
         console.error(`Queue processing failed for region ${regionId}:`, err);

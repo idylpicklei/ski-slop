@@ -1,4 +1,4 @@
-# Ski Slop
+# Skier Slop
 
 North America's ski directory — resorts, rentals, and gear. Built on Cloudflare Pages with D1 SQL and production Cloudflare Agents for automated data enrichment.
 
@@ -181,6 +181,16 @@ self-contained spec: it defines the `ski_resorts` data contract, region slugs, h
 and verify real resorts, strict rules for writing **original (non-copied)** descriptions,
 and the exact `INSERT OR IGNORE` migration format to return. The model's output is a
 ready-to-commit `migrations/NNNN_<region>_resorts.sql` file.
+
+For rental shops, use [`docs/rental-research-guide.md`](docs/rental-research-guide.md)
+instead. It follows the same pattern but adds strict pricing rules: every shop records a
+comparable `daily_rate_usd` (adult standard one-day ski package) so `/rentals/` and
+`/api/rentals/?sort=price` can sort listings by price. Resort detail pages use
+`?sort=value` (price + $2/mi travel) for best-value nearby rentals.
+
+A future **Deal Scanner Agent** will refresh prices automatically — see
+[`docs/deal-scanner-agent.md`](docs/deal-scanner-agent.md). Enqueue with
+`POST /api/admin/enqueue` and `"type": "deal"` (stub logs to `agent_runs` today).
 
 ## API endpoints
 

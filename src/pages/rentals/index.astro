@@ -2,13 +2,20 @@
 import Layout from "../../layouts/Layout.astro";
 ---
 
-<Layout title="Ski Rentals — Ski Slop" description="Find ski and snowboard rental shops across North America.">
+<Layout title="Ski Rentals — Skier Slop" description="Find ski and snowboard rental shops across North America.">
   <section class="container detail-hero">
     <h1>Ski Rentals</h1>
     <p>Find equipment rental shops near popular ski destinations.</p>
 
     <div class="search-bar">
       <button class="btn" id="use-location">Rentals near me</button>
+      <select id="sort-select" aria-label="Sort rentals">
+        <option value="value">Sort: Best value</option>
+        <option value="price">Sort: Price (low to high)</option>
+        <option value="price-desc">Sort: Price (high to low)</option>
+        <option value="distance">Sort: Closest</option>
+        <option value="">Sort: Name (A–Z)</option>
+      </select>
     </div>
 
     <div id="rental-list" class="card-grid">
@@ -19,8 +26,57 @@ import Layout from "../../layouts/Layout.astro";
 
 <script>
   const list = document.getElementById("rental-list");
+  const sortSelect = document.getElementById("sort-select") as HTMLSelectElement;
 
-  async function renderRentals(url: string) {
+  let nearMeCoords: { lat: number; lng: number } | null = null;
+
+  function renderRentalCard(r: {
+    name: string;
+    region_name: string;
+    nearest_resort_name: string;
+    address: string;
+    summary: string;
+    daily_rate_usd?: number | null;
+    distance_miles?: number;
+    effective_cost?: number | null;
+  }, sort: string) {
+    const dist = r.distance_miles != null ? ` · ${r.distance_miles.toFixed(1)} mi` : "";
+    const price =
+      r.daily_rate_usd != null
+        ? `<p class="meta"><strong>$${r.daily_rate_usd}/day</strong> ski package${dist}</p>`
+        : dist
+          ? `<p class="meta">${dist.slice(3)}</p>`
+          : "";
+    const effective =
+      sort === "value" && r.effective_cost != null
+        ? `<p class="meta">≈ $${Math.round(r.effective_cost)} effective (incl. $2/mi travel)</p>`
+        : "";
+    return `<article class="card">
+      <h3>${r.name}</h3>
+      <p class="meta">${r.region_name ?? ""}${r.nearest_resort_name ? ` · near ${r.nearest_resort_name}` : ""}</p>
+      ${price}
+      ${effective}
+      <p>${r.address ?? ""}</p>
+      <p>${(r.summary ?? "").slice(0, 120)}</p>
+    </article>`;
+  }
+
+  async function renderRentals() {
+    const sort = sortSelect?.value ?? "value";
+    let url: string;
+
+    if (nearMeCoords && sort && sort !== "price-desc" && sort !== "") {
+      url = `/api/rentals/nearest?lat=${nearMeCoords.lat}&lng=${nearMeCoords.lng}&limit=12&sort=${sort}`;
+    } else if (nearMeCoords && (!sort || sort === "")) {
+      url = `/api/rentals/nearest?lat=${nearMeCoords.lat}&lng=${nearMeCoords.lng}&limit=12&sort=value`;
+    } else if (sort === "value" || sort === "distance") {
+      url = "/api/rentals/?sort=price";
+    } else if (sort) {
+      url = `/api/rentals/?sort=${sort}`;
+    } else {
+      url = "/api/rentals/";
+    }
+
     try {
       const res = await fetch(url);
       const data = await res.json();
@@ -32,37 +88,27 @@ import Layout from "../../layouts/Layout.astro";
         return;
       }
 
-      list.innerHTML = rentals
-        .map(
-          (r: {
-            name: string;
-            region_name: string;
-            nearest_resort_name: string;
-            address: string;
-            summary: string;
-            distance_miles?: number;
-          }) =>
-            `<article class="card">
-              <h3>${r.name}</h3>
-              <p class="meta">${r.region_name ?? ""}${r.nearest_resort_name ? ` · near ${r.nearest_resort_name}` : ""}${r.distance_miles ? ` · ${r.distance_miles.toFixed(1)} mi` : ""}</p>
-              <p>${r.address ?? ""}</p>
-              <p>${(r.summary ?? "").slice(0, 120)}</p>
-            </article>`,
-        )
-        .join("");
+      const displaySort = nearMeCoords ? sort || "value" : sort;
+      list.innerHTML = rentals.map((r) => renderRentalCard(r, displaySort)).join("");
     } catch {
       if (list) list.innerHTML = '<p class="empty">Failed to load rentals.</p>';
     }
   }
 
-  renderRentals("/api/rentals/");
+  renderRentals();
+
+  sortSelect?.addEventListener("change", () => {
+    if (list) list.innerHTML = '<p class="loading">Loading rentals…</p>';
+    renderRentals();
+  });
 
   document.getElementById("use-location")?.addEventListener("click", () => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const { latitude: lat, longitude: lng } = pos.coords;
+        nearMeCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         if (list) list.innerHTML = '<p class="loading">Finding rentals near you…</p>';
-        renderRentals(`/api/rentals/nearest?lat=${lat}&lng=${lng}&limit=12`);
+        if (sortSelect && !sortSelect.value) sortSelect.value = "value";
+        renderRentals();
       },
       () => alert("Location access denied."),
     );

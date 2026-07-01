@@ -1,10 +1,19 @@
-import { errorResponse, jsonResponse } from "../../../shared/utils";
+import {
+  buildResortNearbyRentalsSql,
+  errorResponse,
+  jsonResponse,
+  parseRentalSortMode,
+} from "../../../shared/utils";
 
-export const onRequestGet: PagesFunction<Env> = async ({ env, params }) => {
+export const onRequestGet: PagesFunction<Env> = async ({ env, params, request }) => {
   const slug = params.slug;
   if (!slug) {
     return errorResponse("Slug required", 400);
   }
+
+  const url = new URL(request.url);
+  const sort = parseRentalSortMode(url.searchParams.get("sort"), "value");
+  const limit = Math.min(Number(url.searchParams.get("limit") ?? 25), 50);
 
   const resort = await env.DB.prepare(`
     SELECT r.*, reg.name AS region_name, reg.slug AS region_slug
@@ -19,26 +28,15 @@ export const onRequestGet: PagesFunction<Env> = async ({ env, params }) => {
     return errorResponse("Resort not found", 404);
   }
 
-  const { results: rentals } = await env.DB.prepare(`
-    SELECT sr.*, (
-      3958.8 * 2 * ASIN(SQRT(
-        POWER(SIN((sr.lat - ?1) * PI() / 180 / 2), 2) +
-        COS(?1 * PI() / 180) * COS(sr.lat * PI() / 180) *
-        POWER(SIN((sr.lng - ?2) * PI() / 180 / 2), 2)
-      ))
-    ) AS distance_miles
-    FROM ski_rentals sr
-    WHERE sr.nearest_resort_id = ?3 OR sr.region_id = ?4
-    ORDER BY distance_miles ASC
-    LIMIT 10
-  `)
+  const { results: rentals } = await env.DB.prepare(buildResortNearbyRentalsSql(sort))
     .bind(
       (resort as { lat: number }).lat,
       (resort as { lng: number }).lng,
       (resort as { id: number }).id,
       (resort as { region_id: number }).region_id,
+      limit,
     )
     .all();
 
-  return jsonResponse({ resort, nearby_rentals: rentals });
+  return jsonResponse({ resort, sort, nearby_rentals: rentals });
 };

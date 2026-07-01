@@ -1,8 +1,8 @@
-# Ski Slop — Resort Research & Description Guide
+# Skier Slop — Resort Research & Description Guide
 
 > **Purpose:** This is a complete, self-contained task specification for an AI model
 > (any model, TBD) to **find new ski resorts** in North America and write **accurate,
-> original (non-copied) descriptions** that drop directly into the Ski Slop database.
+> original (non-copied) descriptions** that drop directly into the Skier Slop database.
 >
 > Treat everything below as your instructions. Follow the data contract and the
 > originality rules exactly. When you are done, your output must be a single SQL
@@ -10,9 +10,9 @@
 
 ---
 
-## 1. What Ski Slop is
+## 1. What Skier Slop is
 
-Ski Slop is a directory of North American ski resorts, rental shops, and gear, running
+Skier Slop is a directory of North American ski resorts, rental shops, and gear, running
 on Cloudflare (Astro site + Pages Functions API + D1 SQLite database). Resort listings
 power:
 
@@ -39,6 +39,7 @@ CREATE TABLE ski_resorts (
   lng           REAL NOT NULL,          -- decimal degrees, WGS84 (negative in the Americas)
   elevation_ft  INTEGER,                -- SUMMIT elevation in feet, or NULL if unknown
   trail_count   INTEGER,                -- number of named runs/trails, or NULL if unknown
+  ticket_price_usd INTEGER,             -- adult full-day lift ticket in whole USD, or NULL (see rules)
   website       TEXT,                   -- official homepage (https://), or NULL
   source        TEXT,                   -- provenance: use 'manual' for researched entries
   summary       TEXT,                   -- ORIGINAL 1-sentence description (see §6)
@@ -57,6 +58,7 @@ CREATE TABLE ski_resorts (
 | `lat` / `lng` | Coordinates of the base area / main lodge. 4–5 decimal places. Longitude is **negative** in the US and Canada. Sanity-check they fall inside the claimed region. |
 | `elevation_ft` | **Summit** elevation, in feet (not base, not vertical drop). Convert meters → feet with `× 3.28084` and round to a whole number. `NULL` if you cannot verify it. |
 | `trail_count` | Count of trails/runs the resort advertises. `NULL` if unknown. Never guess a number. |
+| `ticket_price_usd` | **Adult full-day lift ticket, in whole US dollars** (no cents, no `$`). Take it from the resort's own tickets/rates page for the **current or most recent season**. If the resort posts a range (dynamic/date-based pricing), use the **peak walk-up/window rate** — the highest regular adult day price. For Canadian resorts, convert the CAD price to USD at the current exchange rate, round to a whole number, and note the original CAD price in the `-- Sources:` comment. `NULL` if the resort doesn't publish prices (e.g. private, donation-based, or pass-only). Never estimate from third-party sites alone. |
 | `website` | Official site only, with scheme (`https://`). Not a booking aggregator, not a Wikipedia/OnTheSnow link. `NULL` if the resort has no site. |
 | `source` | Use the string `'manual'` for anything you research (keeps it distinct from OSM-imported rows, which use `'osm'`). |
 | `summary` | See §6 — this is the part that must be original. |
@@ -146,6 +148,10 @@ gather facts from **at least two independent, credible sources** and cross-check
 - Coordinates land on the actual base area and inside the claimed region.
 - Elevation and trail counts agree across your sources; if they conflict and you can't
   resolve it, set that field to `NULL`.
+- **Ticket price comes from the resort's own tickets/rates page** — third-party sites
+  (OnTheSnow, ski pass aggregators) may be seasons out of date. Use them only as a
+  sanity check. If the official page only sells via a dynamic-pricing calendar, take the
+  highest regular adult day rate you can see. If prices are unpublished, use `NULL`.
 
 **Batch size:** aim for a coherent set (e.g. "all lift-served resorts in Oregon"). Quality
 over quantity — 8 verified resorts beat 30 shaky ones.
@@ -214,15 +220,15 @@ Note the `region_id` is resolved by the `SELECT ... FROM regions WHERE slug = '.
 -- <Region> ski resorts — researched, original descriptions.
 -- Each entry verified against >=2 sources (cited in the comment above it).
 
--- Sources: skibachelor.com ; en.wikipedia.org/wiki/Mount_Bachelor_ski_area
-INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft, trail_count, website, source, summary)
-SELECT 'mount-bachelor', 'Mount Bachelor', id, 43.9793, -121.6884, 9065, 121, 'https://www.mtbachelor.com', 'manual',
+-- Sources: mtbachelor.com (tickets: $189 peak 25/26) ; en.wikipedia.org/wiki/Mount_Bachelor_ski_area
+INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft, trail_count, ticket_price_usd, website, source, summary)
+SELECT 'mount-bachelor', 'Mount Bachelor', id, 43.9793, -121.6884, 9065, 121, 189, 'https://www.mtbachelor.com', 'manual',
   'Central Oregon volcano offering 360-degree summit skiing and one of the Northwest''s longest seasons.'
 FROM regions WHERE slug = 'us-or';
 
 -- Sources: <source A> ; <source B>
-INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft, trail_count, website, source, summary)
-SELECT '<slug>', '<Name>', id, <lat>, <lng>, <elevation_ft|NULL>, <trail_count|NULL>, '<https://…|NULL>', 'manual',
+INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft, trail_count, ticket_price_usd, website, source, summary)
+SELECT '<slug>', '<Name>', id, <lat>, <lng>, <elevation_ft|NULL>, <trail_count|NULL>, <ticket_price_usd|NULL>, '<https://…|NULL>', 'manual',
   '<original one-sentence summary>'
 FROM regions WHERE slug = '<region-slug>';
 ```
@@ -231,7 +237,8 @@ FROM regions WHERE slug = '<region-slug>';
 
 - **Escape single quotes** in any text by doubling them: `O'Reilly` → `'O''Reilly'`,
   `Northwest''s`. This is the #1 cause of broken migrations.
-- Use `NULL` (no quotes) for unknown `elevation_ft`, `trail_count`, or `website`.
+- Use `NULL` (no quotes) for unknown `elevation_ft`, `trail_count`, `ticket_price_usd`,
+  or `website`. `ticket_price_usd` is a bare whole number (`92`), never `'$92'` or `92.00`.
 - Keep `source` as `'manual'`.
 - Put a `-- Sources: …` comment line directly above each `INSERT` listing the URLs/works
   you verified it against. This keeps provenance in git without changing the schema.
@@ -265,6 +272,8 @@ Facts & scope:
 - [ ] `lat`/`lng` are decimal degrees, longitude negative, and fall inside the region.
 - [ ] `elevation_ft` is the **summit** in feet (converted from meters if needed) or `NULL`.
 - [ ] `trail_count` verified or `NULL`. `website` is the official site or `NULL`.
+- [ ] `ticket_price_usd` is the adult full-day peak rate from the resort's own tickets
+      page (whole USD, CAD converted and noted in sources), or `NULL` if unpublished.
 - [ ] No duplicates vs existing migrations / seed (checked by slug, name, and coordinates).
 
 Descriptions:
@@ -282,11 +291,12 @@ Output:
 
 ## 10. Quick copy-paste task prompt
 
-> You are adding ski resorts to the Ski Slop database. Read
+> You are adding ski resorts to the Skier Slop database in Idaho. Read
 > `docs/resort-research-guide.md` in this repo and follow it exactly. Find
 > currently-operating, lift-served public ski resorts in **<REGION(S)>** that are not
 > already present in the `migrations/` folder. For each, verify facts against at least two
-> credible sources and write one original, non-copied summary sentence in the house voice.
+> credible sources, record the adult full-day lift ticket price from the resort's own
+> tickets page, and write one original, non-copied summary sentence in the house voice.
 > Return a single ready-to-commit SQL migration file named `NNNN_<region>_resorts.sql`
 > using the `INSERT OR IGNORE ... SELECT ... FROM regions WHERE slug = '...'` pattern,
 > with a `-- Sources:` comment above each entry. Do not edit existing files.

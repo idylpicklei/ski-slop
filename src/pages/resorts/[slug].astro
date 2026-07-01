@@ -12,7 +12,7 @@ export function getStaticPaths() {
 const { resort } = Astro.props;
 ---
 
-<Layout title={`${resort.name} — Ski Slop`} description={resort.summary}>
+<Layout title={`${resort.name} — Skier Slop`} description={resort.summary}>
   <section class="container detail-hero">
     <h1>{resort.name}</h1>
     <p class="meta">{resort.region_slug.toUpperCase()}</p>
@@ -39,37 +39,28 @@ const { resort } = Astro.props;
   </section>
 
   <section class="container">
-    <h2 class="section-title">Nearby rentals</h2>
+    <h2 class="section-title">Nearby resorts</h2>
+    <div id="nearby-resorts" class="card-grid card-grid-compact">
+      <p class="loading">Loading nearby resorts…</p>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="section-header">
+      <h2 class="section-title">Nearby rentals</h2>
+      <select id="rental-sort" aria-label="Sort rentals">
+        <option value="value" selected>Best value</option>
+        <option value="price">Cheapest</option>
+        <option value="distance">Closest</option>
+      </select>
+    </div>
     <div id="nearby-rentals" class="card-grid">
       <p class="loading">Loading nearby rentals…</p>
     </div>
   </section>
 </Layout>
 
-<script define:vars={{ slug: resort.slug }}>
-  const container = document.getElementById("nearby-rentals");
-
-  fetch(`/api/resorts/${slug}`)
-    .then((r) => r.json())
-    .then((data) => {
-      if (!container) return;
-      const rentals = data.nearby_rentals ?? [];
-      if (!rentals.length) {
-        container.innerHTML = '<p class="empty">No rental shops listed nearby yet.</p>';
-        return;
-      }
-      container.innerHTML = rentals
-        .map(
-          (r) =>
-            `<article class="card">
-              <h3>${r.name}</h3>
-              <p class="meta">${r.address ?? ""}${r.distance_miles ? ` · ${Number(r.distance_miles).toFixed(1)} mi` : ""}</p>
-              <p>${(r.summary ?? "").slice(0, 120)}</p>
-            </article>`,
-        )
-        .join("");
-    })
-    .catch(() => {
-      if (container) container.innerHTML = '<p class="empty">Could not load rentals.</p>';
-    });
+<script is:inline src="/js/resort-detail.js"></script>
+<script is:inline define:vars={{ slug: resort.slug, lat: resort.lat, lng: resort.lng }}>
+  initResortDetailPage(slug, lat, lng);
 </script>

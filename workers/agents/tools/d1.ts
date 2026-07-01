@@ -3,7 +3,7 @@ import type { AgentEnv, NormalizedRental, NormalizedResort, RegionRow } from "..
 
 export async function startAgentRun(
   db: D1Database,
-  agentType: "resort" | "rental",
+  agentType: "resort" | "rental" | "deal",
   regionId: number,
 ): Promise<number> {
   const result = await db

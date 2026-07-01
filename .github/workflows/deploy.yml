@@ -1,4 +1,4 @@
-name: Deploy Ski Slop
+name: Deploy Skier Slop
 
 # Disable this workflow if you deploy via Cloudflare Workers Builds (dashboard).
 # You only need ONE deploy pipeline — not both GHA and Workers Builds on push.

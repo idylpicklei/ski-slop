@@ -7,7 +7,7 @@ const usRegions = NA_REGIONS.filter((r) => r.country === "US");
 const caRegions = NA_REGIONS.filter((r) => r.country === "CA");
 ---
 
-<Layout title="Ski Slop — Find ski resorts and rentals near you">
+<Layout title="Skier Slop — Find ski resorts and rentals near you">
   <section class="hero container">
     <h1>Find your next ski day</h1>
     <p>
@@ -16,10 +16,12 @@ const caRegions = NA_REGIONS.filter((r) => r.country === "CA");
     </p>
 
     <div class="search-bar">
+      <input type="search" id="resort-search" placeholder="Search resorts by name…" aria-label="Search resorts" />
       <button class="btn" id="use-location">Use my location</button>
       <a class="btn btn-secondary" href="/resorts/">Browse all resorts</a>
     </div>
 
+    <div id="search-results" class="search-results" hidden></div>
     <div id="nearest-results" class="card-grid" hidden></div>
     <p id="location-status" class="loading" hidden>Finding resorts near you…</p>
   </section>
@@ -58,6 +60,50 @@ const caRegions = NA_REGIONS.filter((r) => r.country === "CA");
   const btn = document.getElementById("use-location");
   const status = document.getElementById("location-status");
   const results = document.getElementById("nearest-results");
+  const searchInput = document.getElementById("resort-search") as HTMLInputElement;
+  const searchResults = document.getElementById("search-results");
+
+  async function searchResorts(q: string) {
+    if (!searchResults) return;
+    if (!q.trim()) {
+      searchResults.setAttribute("hidden", "true");
+      searchResults.innerHTML = "";
+      return;
+    }
+    searchResults.removeAttribute("hidden");
+    searchResults.innerHTML = '<p class="loading">Searching…</p>';
+    results?.setAttribute("hidden", "true");
+
+    try {
+      const res = await fetch(`/api/resorts/?q=${encodeURIComponent(q)}&limit=8`);
+      const data = await res.json();
+      const resorts = data.resorts ?? [];
+      if (!resorts.length) {
+        searchResults.innerHTML = '<p class="empty">No resorts match that name.</p>';
+        return;
+      }
+      searchResults.innerHTML = resorts
+        .map(
+          (r: { slug: string; name: string; region_name: string; summary: string }) =>
+            `<article class="card">
+              <h3><a href="/resorts/${r.slug}/">${r.name}</a></h3>
+              <p class="meta">${r.region_name ?? ""}</p>
+              <p>${(r.summary ?? "").slice(0, 100)}</p>
+            </article>`,
+        )
+        .join("");
+    } catch {
+      searchResults.innerHTML = '<p class="empty">Search failed.</p>';
+    }
+  }
+
+  searchInput?.addEventListener("input", () => {
+    clearTimeout((searchInput as unknown as { _t?: number })._t);
+    (searchInput as unknown as { _t?: number })._t = window.setTimeout(
+      () => searchResorts(searchInput.value),
+      300,
+    );
+  });
 
   btn?.addEventListener("click", () => {
     if (!navigator.geolocation) {
@@ -75,6 +121,7 @@ const caRegions = NA_REGIONS.filter((r) => r.country === "CA");
           const res = await fetch(`/api/resorts/nearest?lat=${lat}&lng=${lng}&limit=6`);
           const data = await res.json();
           status?.setAttribute("hidden", "true");
+          searchResults?.setAttribute("hidden", "true");
           if (!results) return;
           results.removeAttribute("hidden");
 

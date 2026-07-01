@@ -8,6 +8,7 @@ export interface ResortPageData {
   region_slug: string | null;
   trail_count: number | null;
   elevation_ft: number | null;
+  ticket_price_usd: number | null;
   lat: number;
   lng: number;
   website: string | null;
@@ -23,12 +24,16 @@ export function renderResortHtml(resort: ResortPageData): string {
   const trails = resort.trail_count ?? "?";
   const elevation = resort.elevation_ft?.toLocaleString() ?? "?";
   const coords = `${resort.lat.toFixed(2)}°, ${resort.lng.toFixed(2)}°`;
+  const priceStat =
+    resort.ticket_price_usd != null
+      ? `<div class="stat"><strong>$${resort.ticket_price_usd}</strong><span>Day ticket</span></div>`
+      : "";
   const website = resort.website
     ? `<p><a class="btn" href="${escapeHtml(resort.website)}" target="_blank" rel="noopener">Official website</a></p>`
     : "";
   const sourceBadge =
     resort.source === "osm"
-      ? `<p class="meta">Discovered via OpenStreetMap · enriched by Ski Slop agents</p>`
+      ? `<p class="meta">Discovered via OpenStreetMap · enriched by Skier Slop agents</p>`
       : "";
 
   return `<!DOCTYPE html>
@@ -37,13 +42,13 @@ export function renderResortHtml(resort: ResortPageData): string {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="${summary}" />
-  <title>${title} — Ski Slop</title>
+  <title>${title} — Skier Slop</title>
   <link rel="stylesheet" href="/styles/global.css" />
 </head>
 <body>
   <header class="site-header">
     <div class="container">
-      <a class="logo" href="/">Ski <span>Slop</span></a>
+      <a class="logo" href="/">Skier <span>Slop</span></a>
       <nav>
         <a href="/resorts/">Resorts</a>
         <a href="/rentals/">Rentals</a>
@@ -61,41 +66,35 @@ export function renderResortHtml(resort: ResortPageData): string {
       <div class="stats">
         <div class="stat"><strong>${trails}</strong><span>Trails</span></div>
         <div class="stat"><strong>${elevation}</strong><span>Summit (ft)</span></div>
+        ${priceStat}
         <div class="stat"><strong>${coords}</strong><span>Coordinates</span></div>
       </div>
       ${website}
     </section>
     <section class="container">
-      <h2 class="section-title">Nearby rentals</h2>
+      <h2 class="section-title">Nearby resorts</h2>
+      <div id="nearby-resorts" class="card-grid card-grid-compact"><p class="loading">Loading nearby resorts…</p></div>
+    </section>
+    <section class="container">
+      <div class="section-header">
+        <h2 class="section-title">Nearby rentals</h2>
+        <select id="rental-sort" aria-label="Sort rentals">
+          <option value="value" selected>Best value</option>
+          <option value="price">Cheapest</option>
+          <option value="distance">Closest</option>
+        </select>
+      </div>
       <div id="nearby-rentals" class="card-grid"><p class="loading">Loading nearby rentals…</p></div>
     </section>
   </main>
   <footer class="site-footer">
     <div class="container">
-      <p>Ski Slop — ski hills, rentals, and gear across North America.</p>
+      <p>Skier Slop — ski hills, rentals, and gear across North America.</p>
     </div>
   </footer>
+  <script src="/js/resort-detail.js"></script>
   <script>
-    fetch("/api/resorts/${escapeHtml(resort.slug)}")
-      .then((r) => r.json())
-      .then((data) => {
-        const el = document.getElementById("nearby-rentals");
-        if (!el) return;
-        const rentals = data.nearby_rentals ?? [];
-        if (!rentals.length) {
-          el.innerHTML = '<p class="empty">No rental shops listed nearby yet.</p>';
-          return;
-        }
-        el.innerHTML = rentals.map((r) =>
-          '<article class="card"><h3>' + r.name + '</h3><p class="meta">' +
-          (r.address ?? '') + (r.distance_miles ? ' · ' + Number(r.distance_miles).toFixed(1) + ' mi' : '') +
-          '</p><p>' + (r.summary ?? '').slice(0, 120) + '</p></article>'
-        ).join('');
-      })
-      .catch(() => {
-        const el = document.getElementById("nearby-rentals");
-        if (el) el.innerHTML = '<p class="empty">Could not load rentals.</p>';
-      });
+    initResortDetailPage("${escapeHtml(resort.slug)}", ${resort.lat}, ${resort.lng});
   </script>
 </body>
 </html>`;

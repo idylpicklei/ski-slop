@@ -3,6 +3,7 @@ import { jsonResponse } from "../../../shared/utils";
 export const onRequestGet: PagesFunction<Env> = async ({ env, request }) => {
   const url = new URL(request.url);
   const region = url.searchParams.get("region");
+  const sort = url.searchParams.get("sort");
   const limit = Math.min(Number(url.searchParams.get("limit") ?? 50), 100);
 
   let query = `
@@ -17,7 +18,15 @@ export const onRequestGet: PagesFunction<Env> = async ({ env, request }) => {
     query += " WHERE reg.slug = ?";
     params.push(region);
   }
-  query += " ORDER BY sr.name ASC LIMIT ?";
+
+  // Unpriced shops sort last so priced results lead the list.
+  if (sort === "price") {
+    query += " ORDER BY sr.daily_rate_usd IS NULL, sr.daily_rate_usd ASC, sr.name ASC LIMIT ?";
+  } else if (sort === "price-desc") {
+    query += " ORDER BY sr.daily_rate_usd IS NULL, sr.daily_rate_usd DESC, sr.name ASC LIMIT ?";
+  } else {
+    query += " ORDER BY sr.name ASC LIMIT ?";
+  }
   params.push(limit);
 
   const { results } = await env.DB.prepare(query).bind(...params).all();

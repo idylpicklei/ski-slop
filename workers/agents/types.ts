@@ -8,7 +8,7 @@ export interface AgentEnv {
 }
 
 export interface EnrichmentMessage {
-  type: "resort" | "rental";
+  type: "resort" | "rental" | "deal";
   regionId: number;
 }
 

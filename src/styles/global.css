@@ -176,6 +176,58 @@ nav a:hover {
   margin: 2rem 0 1rem;
 }
 
+.section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 2rem 0 1rem;
+}
+
+.section-header .section-title {
+  margin: 0;
+}
+
+.section-header select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ice);
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.card-grid-compact {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.card-compact h3 {
+  font-size: 1rem;
+}
+
+.search-results {
+  text-align: left;
+  max-width: 640px;
+  margin: 0 auto 2rem;
+}
+
+.search-results .card {
+  margin-bottom: 0.5rem;
+}
+
+.search-results .card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.search-results .card a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.search-results .card a:hover {
+  color: var(--accent);
+}
+
 .detail-hero {
   padding: 2.5rem 0 1.5rem;
 }
