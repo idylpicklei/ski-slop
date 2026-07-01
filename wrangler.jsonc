@@ -2,7 +2,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "ski-slop",
   "account_id": "c537fdc75bc4ff82c03a0744a319875c",
-  "main": "./dist/_worker.js/index.js",
+  "main": "./workers/site/index.ts",
   "compatibility_date": "2025-03-01",
   "compatibility_flags": ["nodejs_compat_v2"],
   "assets": {
@@ -17,10 +17,43 @@
       "migrations_dir": "migrations"
     }
   ],
-  "services": [
+  "ai": {
+    "binding": "AI"
+  },
+  "queues": {
+    "producers": [
+      {
+        "binding": "ENRICHMENT_QUEUE",
+        "queue": "ski-slop-enrichment"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "ski-slop-enrichment",
+        "max_batch_size": 5,
+        "max_batch_timeout": 30
+      }
+    ]
+  },
+  "triggers": {
+    "crons": ["0 3 * * *"]
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "RESORT_AGENT",
+        "class_name": "ResortEnrichmentAgent"
+      },
+      {
+        "name": "RENTAL_AGENT",
+        "class_name": "RentalEnrichmentAgent"
+      }
+    ]
+  },
+  "migrations": [
     {
-      "binding": "AGENTS",
-      "service": "ski-slop-agents"
+      "tag": "v1",
+      "new_classes": ["ResortEnrichmentAgent", "RentalEnrichmentAgent"]
     }
   ]
 }

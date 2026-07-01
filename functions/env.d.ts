@@ -1,7 +1,7 @@
 declare global {
   interface Env {
     DB: D1Database;
-    AGENTS?: Fetcher;
+    ENRICHMENT_QUEUE?: Queue;
     ADMIN_TOKEN?: string;
   }
 }

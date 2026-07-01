@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-pages:
+  deploy:
     runs-on: ubuntu-latest
-    name: Deploy Pages
+    name: Build and deploy
     permissions:
       contents: read
       deployments: write
@@ -23,36 +23,6 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      - name: Deploy agents worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy -c wrangler.agents.jsonc
-
-      - name: Deploy site worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy
-
-  deploy-agents:
-    runs-on: ubuntu-latest
-    name: Deploy Agent Worker
-    needs: deploy-pages
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-
-      - run: npm ci
-
       - name: Apply D1 migrations
         uses: cloudflare/wrangler-action@v3
         with:
@@ -60,9 +30,17 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: d1 migrations apply ski-slop-db --remote
 
-      - name: Deploy agent worker
+      - name: Create enrichment queue
+        uses: cloudflare/wrangler-action@v3
+        continue-on-error: true
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: queues create ski-slop-enrichment
+
+      - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy -c wrangler.agents.jsonc
+          command: deploy

@@ -8,8 +8,8 @@ export const onRequestPost: PagesFunction<Env> = async ({
   if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN) {
     return errorResponse("Unauthorized", 401);
   }
-  if (!env.AGENTS) {
-    return errorResponse("Agent service not configured", 503);
+  if (!env.ENRICHMENT_QUEUE) {
+    return errorResponse("Enrichment queue not configured", 503);
   }
 
   const body = (await request.json()) as {
@@ -32,16 +32,19 @@ export const onRequestPost: PagesFunction<Env> = async ({
   }
 
   const type = body.type ?? "both";
-  const agentResponse = await env.AGENTS.fetch(
-    new Request("https://agents/enqueue", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ regionId: region.id, type }),
-    }),
-  );
+  if (type === "rental") {
+    await env.ENRICHMENT_QUEUE.send({
+      type: "rental",
+      regionId: region.id,
+    });
+  } else {
+    await env.ENRICHMENT_QUEUE.send({
+      type: "resort",
+      regionId: region.id,
+    });
+  }
 
-  const result = await agentResponse.json();
-  return jsonResponse(result, { status: agentResponse.status });
+  return jsonResponse({ queued: true, regionId: region.id, type });
 };
 
 export const onRequestOptions: PagesFunction = async () => {

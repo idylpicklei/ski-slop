@@ -81,29 +81,21 @@ If the token was edited or rolled, create a new one and re-select it in Build se
 
 ## Deploy
 
-### 1. D1 database
+### One-time setup
 
 ```bash
 npm run db:create
-# Update database_id in wrangler.jsonc and wrangler.agents.jsonc
+# Update database_id in wrangler.jsonc
 npm run db:migrate:remote
+npm run queues:create
 ```
 
-### 2. Agent worker (deploy first)
+### Cloudflare Workers Builds (dashboard)
 
-```bash
-# Create queue in Cloudflare dashboard or via wrangler
-wrangler queues create ski-slop-enrichment
-
-npm run deploy:agents
-```
-
-### 3. Cloudflare Pages / Workers
-
-Connect the GitHub repo in the Cloudflare dashboard with:
-
-- **Build command:** `npm run build`
-- **Deploy command:** `npx wrangler deploy`
+| Setting | Value |
+|---------|--------|
+| Build command | `npm run build` |
+| Deploy command | `npm run deploy:ci` |
 
 Or deploy manually:
 
@@ -111,14 +103,11 @@ Or deploy manually:
 npm run deploy:pages
 ```
 
-### 4. Secrets
+### Secrets
 
 ```bash
-echo "your-secret" | wrangler pages secret put ADMIN_TOKEN --project-name=ski-slop
-echo "your-secret" | wrangler secret put ADMIN_TOKEN -c wrangler.agents.jsonc
+echo "your-secret" | wrangler secret put ADMIN_TOKEN
 ```
-
-### 5. Trigger enrichment (admin)
 
 ```bash
 curl -X POST https://your-site.pages.dev/api/admin/enqueue \
