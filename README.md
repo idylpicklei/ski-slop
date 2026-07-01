@@ -11,7 +11,7 @@ North America's ski directory — resorts, rentals, and gear. Built on Cloudflar
 
 ## Prerequisites
 
-- Node.js 18+
+- Node.js 22+ (required by Wrangler 4.106+)
 - Cloudflare account
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) v4+
 
@@ -43,6 +43,7 @@ If deploying via **Workers & Pages → ski-slop → Settings → Builds**:
 | Build command | `npm run build` |
 | **Deploy command** | `npm run deploy:ci` |
 | Root directory | `/` |
+| **Build variable** | `NODE_VERSION` = `22` |
 
 Do **not** use `wrangler pages deploy` — this project deploys as a **Worker with static assets**.
 
