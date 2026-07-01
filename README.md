@@ -173,6 +173,15 @@ The **ResortEnrichmentAgent** scans OpenStreetMap across Idaho (`us-id`), normal
 
 The agent queries the full **US-ID** boundary in OpenStreetMap, then queues a rental scan for the same region.
 
+## Adding resorts with an AI model
+
+To hand resort research off to any AI model, point it at
+[`docs/resort-research-guide.md`](docs/resort-research-guide.md). That file is a complete,
+self-contained spec: it defines the `ski_resorts` data contract, region slugs, how to find
+and verify real resorts, strict rules for writing **original (non-copied)** descriptions,
+and the exact `INSERT OR IGNORE` migration format to return. The model's output is a
+ready-to-commit `migrations/NNNN_<region>_resorts.sql` file.
+
 ## API endpoints
 
 | Method | Path | Description |
