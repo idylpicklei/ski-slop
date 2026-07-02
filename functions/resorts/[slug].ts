@@ -1,7 +1,7 @@
 import { renderResortHtml, type ResortPageData } from "../../shared/resort-html";
 import { errorResponse } from "../../shared/utils";
 
-export const onRequestGet: PagesFunction<Env> = async ({ env, params }) => {
+export const onRequestGet: PagesFunction<Env> = async ({ env, params, request }) => {
   const slug = params.slug;
   if (!slug) {
     return errorResponse("Slug required", 400);
@@ -20,7 +20,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env, params }) => {
     return new Response("Resort not found", { status: 404 });
   }
 
-  return new Response(renderResortHtml(resort), {
+  return new Response(renderResortHtml(resort, new URL(request.url).origin), {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "public, max-age=300",

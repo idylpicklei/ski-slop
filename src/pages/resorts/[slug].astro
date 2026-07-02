@@ -10,9 +10,46 @@ export function getStaticPaths() {
 }
 
 const { resort } = Astro.props;
+
+const pageUrl = Astro.site
+  ? new URL(`/resorts/${resort.slug}/`, Astro.site).href
+  : `/resorts/${resort.slug}/`;
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "SkiResort",
+    name: resort.name,
+    description: resort.summary,
+    url: pageUrl,
+    sameAs: resort.website,
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: resort.lat,
+      longitude: resort.lng,
+    },
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: resort.region_slug.startsWith("ca-") ? "CA" : "US",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: Astro.site ? new URL("/", Astro.site).href : "/" },
+      { "@type": "ListItem", position: 2, name: "Resorts", item: Astro.site ? new URL("/resorts/", Astro.site).href : "/resorts/" },
+      { "@type": "ListItem", position: 3, name: resort.name, item: pageUrl },
+    ],
+  },
+];
 ---
 
-<Layout title={`${resort.name} — Skier Slop`} description={resort.summary}>
+<Layout
+  title={`${resort.name} Ski Resort — Tickets, Trails & Nearby Rentals | Skier Slop`}
+  description={`${resort.name}: ${resort.trail_count} trails, ${resort.elevation_ft.toLocaleString()} ft summit. Compare nearby ski rental prices before you go. ${resort.summary}`.slice(0, 300)}
+  jsonLd={jsonLd}
+>
   <section class="container detail-hero">
     <h1>{resort.name}</h1>
     <p class="meta">{resort.region_slug.toUpperCase()}</p>
@@ -47,19 +84,21 @@ const { resort } = Astro.props;
 
   <section class="container">
     <div class="section-header">
-      <h2 class="section-title">Nearby rentals</h2>
+      <h2 class="section-title">Rent skis near {resort.name}</h2>
       <select id="rental-sort" aria-label="Sort rentals">
         <option value="value" selected>Best value</option>
         <option value="price">Cheapest</option>
         <option value="distance">Closest</option>
       </select>
     </div>
+    <p class="meta">Compare daily ski rental package prices from shops around the mountain — often cheaper than renting at the base.</p>
     <div id="nearby-rentals" class="card-grid">
       <p class="loading">Loading nearby rentals…</p>
     </div>
   </section>
 </Layout>
 
+<script is:inline src="/js/rental-cards.js"></script>
 <script is:inline src="/js/resort-detail.js"></script>
 <script is:inline define:vars={{ slug: resort.slug, lat: resort.lat, lng: resort.lng }}>
   initResortDetailPage(slug, lat, lng);

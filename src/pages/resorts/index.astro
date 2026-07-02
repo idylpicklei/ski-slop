@@ -3,10 +3,13 @@ import Layout from "../../layouts/Layout.astro";
 import { NA_REGIONS } from "../../../shared/regions-data";
 ---
 
-<Layout title="Ski Resorts — Skier Slop" description="Browse ski resorts across North America by state and province.">
+<Layout
+  title="Ski Resorts in the US & Canada — Browse by State or Province | Skier Slop"
+  description="Browse North American ski resorts by state and province. See trail counts, summit elevation, and day-ticket prices, then compare ski rental shops near each mountain."
+>
   <section class="container detail-hero">
     <h1>Ski Resorts</h1>
-    <p>Explore ski hills across the United States and Canada.</p>
+    <p>Explore ski hills across the United States and Canada — then compare rental prices near each mountain.</p>
 
     <div class="search-bar">
       <input type="search" id="search" placeholder="Search resorts…" />
@@ -34,6 +37,10 @@ import { NA_REGIONS } from "../../../shared/regions-data";
   if (initialRegion && regionFilter) {
     regionFilter.value = initialRegion;
   }
+  const initialQuery = params.get("q");
+  if (initialQuery && search) {
+    search.value = initialQuery;
+  }
 
   async function loadResorts() {
     const q = search?.value.trim();
@@ -60,11 +67,12 @@ import { NA_REGIONS } from "../../../shared/regions-data";
             region_name: string;
             trail_count: number;
             elevation_ft: number;
+            ticket_price_usd?: number | null;
             summary: string;
           }) =>
             `<article class="card">
               <h3><a href="/resorts/${r.slug}/">${r.name}</a></h3>
-              <p class="meta">${r.region_name ?? ""} · ${r.trail_count ?? "?"} trails · ${r.elevation_ft ?? "?"} ft summit</p>
+              <p class="meta">${r.region_name ?? ""} · ${r.trail_count ?? "?"} trails · ${r.elevation_ft ?? "?"} ft summit${r.ticket_price_usd != null ? ` · <strong>$${r.ticket_price_usd}</strong> day ticket` : ""}</p>
               <p>${(r.summary ?? "").slice(0, 140)}</p>
             </article>`,
         )

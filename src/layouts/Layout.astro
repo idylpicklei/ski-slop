@@ -4,9 +4,19 @@ import "../styles/global.css";
 interface Props {
   title?: string;
   description?: string;
+  /** Optional JSON-LD structured data object (or array of objects). */
+  jsonLd?: object | object[];
 }
 
-const { title = "Skier Slop", description = "North America's ski directory — resorts, rentals, and gear." } = Astro.props;
+const {
+  title = "Skier Slop — Ski Resorts & Rental Price Comparison",
+  description = "North America's ski directory — find resorts, compare ski rental prices near the slopes, and browse gear.",
+  jsonLd,
+} = Astro.props;
+
+const canonicalURL = Astro.site
+  ? new URL(Astro.url.pathname, Astro.site).href
+  : undefined;
 ---
 
 <!doctype html>
@@ -16,6 +26,19 @@ const { title = "Skier Slop", description = "North America's ski directory — r
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    {canonicalURL && <link rel="canonical" href={canonicalURL} />}
+    <meta property="og:site_name" content="Skier Slop" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonicalURL && <meta property="og:url" content={canonicalURL} />}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="theme-color" content="#0284c7" />
+    {jsonLd && (
+      <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+    )}
   </head>
   <body>
     <header class="site-header">
@@ -35,6 +58,12 @@ const { title = "Skier Slop", description = "North America's ski directory — r
     <footer class="site-footer">
       <div class="container">
         <p>Skier Slop — ski hills, rentals, and gear across North America.</p>
+        <p class="meta">
+          <a href="/resorts/">Ski resorts</a> ·
+          <a href="/rentals/">Ski rentals</a> ·
+          <a href="/products/">Ski gear</a> ·
+          <a href="/about/">About</a>
+        </p>
       </div>
     </footer>
   </body>

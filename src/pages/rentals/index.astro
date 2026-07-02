@@ -2,10 +2,17 @@
 import Layout from "../../layouts/Layout.astro";
 ---
 
-<Layout title="Ski Rentals — Skier Slop" description="Find ski and snowboard rental shops across North America.">
+<Layout
+  title="Ski Rentals Near You — Compare Daily Package Prices | Skier Slop"
+  description="Compare ski and snowboard rental prices at shops near North American resorts. Sort by daily rate, distance, or best value and reserve gear before you hit the slopes."
+>
   <section class="container detail-hero">
-    <h1>Ski Rentals</h1>
-    <p>Find equipment rental shops near popular ski destinations.</p>
+    <h1>Ski Rentals — Compare Prices Near the Slopes</h1>
+    <p>
+      Renting in town is often cheaper than renting at the mountain. Compare adult daily
+      ski package rates (skis, boots, and poles) at shops near popular resorts, sort by
+      price or distance, and reserve ahead to skip the morning line.
+    </p>
 
     <div class="search-bar">
       <button class="btn" id="use-location">Rentals near me</button>
@@ -24,42 +31,12 @@ import Layout from "../../layouts/Layout.astro";
   </section>
 </Layout>
 
+<script is:inline src="/js/rental-cards.js"></script>
 <script>
   const list = document.getElementById("rental-list");
   const sortSelect = document.getElementById("sort-select") as HTMLSelectElement;
 
   let nearMeCoords: { lat: number; lng: number } | null = null;
-
-  function renderRentalCard(r: {
-    name: string;
-    region_name: string;
-    nearest_resort_name: string;
-    address: string;
-    summary: string;
-    daily_rate_usd?: number | null;
-    distance_miles?: number;
-    effective_cost?: number | null;
-  }, sort: string) {
-    const dist = r.distance_miles != null ? ` · ${r.distance_miles.toFixed(1)} mi` : "";
-    const price =
-      r.daily_rate_usd != null
-        ? `<p class="meta"><strong>$${r.daily_rate_usd}/day</strong> ski package${dist}</p>`
-        : dist
-          ? `<p class="meta">${dist.slice(3)}</p>`
-          : "";
-    const effective =
-      sort === "value" && r.effective_cost != null
-        ? `<p class="meta">≈ $${Math.round(r.effective_cost)} effective (incl. $2/mi travel)</p>`
-        : "";
-    return `<article class="card">
-      <h3>${r.name}</h3>
-      <p class="meta">${r.region_name ?? ""}${r.nearest_resort_name ? ` · near ${r.nearest_resort_name}` : ""}</p>
-      ${price}
-      ${effective}
-      <p>${r.address ?? ""}</p>
-      <p>${(r.summary ?? "").slice(0, 120)}</p>
-    </article>`;
-  }
 
   async function renderRentals() {
     const sort = sortSelect?.value ?? "value";
@@ -89,7 +66,9 @@ import Layout from "../../layouts/Layout.astro";
       }
 
       const displaySort = nearMeCoords ? sort || "value" : sort;
-      list.innerHTML = rentals.map((r) => renderRentalCard(r, displaySort)).join("");
+      list.innerHTML = rentals
+        .map((r: { slug: string }) => renderRentalCard(r, displaySort))
+        .join("");
     } catch {
       if (list) list.innerHTML = '<p class="empty">Failed to load rentals.</p>';
     }

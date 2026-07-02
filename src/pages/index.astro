@@ -5,9 +5,31 @@ import { NA_REGIONS } from "../../shared/regions-data";
 
 const usRegions = NA_REGIONS.filter((r) => r.country === "US");
 const caRegions = NA_REGIONS.filter((r) => r.country === "CA");
+
+const siteHref = Astro.site?.href ?? "/";
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Skier Slop",
+  description:
+    "North America's ski directory — find resorts, compare ski rental prices near the slopes, and browse gear.",
+  url: siteHref,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${siteHref}resorts/?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
 ---
 
-<Layout title="Skier Slop — Find ski resorts and rentals near you">
+<Layout
+  title="Skier Slop — Find Ski Resorts & Compare Rental Prices Near You"
+  description="Find North American ski resorts and compare ski rental prices at shops near the slopes. Search by name or location, sort rentals by daily rate, and plan a cheaper ski day."
+  jsonLd={jsonLd}
+>
   <section class="hero container">
     <h1>Find your next ski day</h1>
     <p>
@@ -24,6 +46,19 @@ const caRegions = NA_REGIONS.filter((r) => r.country === "CA");
     <div id="search-results" class="search-results" hidden></div>
     <div id="nearest-results" class="card-grid" hidden></div>
     <p id="location-status" class="loading" hidden>Finding resorts near you…</p>
+  </section>
+
+  <section class="container">
+    <div class="cta-banner">
+      <div>
+        <h2>Renting skis this trip?</h2>
+        <p>
+          Shops in town often beat mountain-base prices by $20 or more per day. Compare
+          daily package rates near your resort and reserve before you arrive.
+        </p>
+      </div>
+      <a class="btn" href="/rentals/">Compare rental prices</a>
+    </div>
   </section>
 
   <section class="container">

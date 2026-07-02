@@ -1,29 +1,5 @@
 /** Shared client helpers for resort detail pages (static + dynamic HTML). */
 
-function renderRentalCard(r, sort) {
-  const dist =
-    r.distance_miles != null
-      ? `${Number(r.distance_miles).toFixed(1)} mi`
-      : "";
-  const priceLine =
-    r.daily_rate_usd != null
-      ? `<p class="meta"><strong>$${r.daily_rate_usd}/day</strong> ski package${dist ? ` · ${dist}` : ""}</p>`
-      : dist
-        ? `<p class="meta">${dist}</p>`
-        : "";
-  const effective =
-    sort === "value" && r.effective_cost != null
-      ? `<p class="meta">≈ $${Math.round(r.effective_cost)} effective (incl. $2/mi travel)</p>`
-      : "";
-  return `<article class="card">
-    <h3>${escapeHtml(r.name)}</h3>
-    ${priceLine}
-    ${effective}
-    <p class="meta">${escapeHtml(r.address ?? "")}</p>
-    <p>${escapeHtml((r.summary ?? "").slice(0, 120))}</p>
-  </article>`;
-}
-
 function escapeHtml(text) {
   return String(text)
     .replace(/&/g, "&amp;")

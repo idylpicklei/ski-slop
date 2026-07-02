@@ -60,9 +60,9 @@ export function parseRentalSortMode(
 const HAVERSINE_SR = `
   (
     3958.8 * 2 * ASIN(SQRT(
-      POWER(SIN((sr.lat - ?1) * PI() / 180 / 2), 2) +
+      (SIN((sr.lat - ?1) * PI() / 180 / 2) * SIN((sr.lat - ?1) * PI() / 180 / 2)) +
       COS(?1 * PI() / 180) * COS(sr.lat * PI() / 180) *
-      POWER(SIN((sr.lng - ?2) * PI() / 180 / 2), 2)
+      (SIN((sr.lng - ?2) * PI() / 180 / 2) * SIN((sr.lng - ?2) * PI() / 180 / 2))
     ))
   )`;
 
@@ -123,9 +123,9 @@ export const NEAREST_RESORTS_SQL = `
     reg.slug AS region_slug,
     (
       3958.8 * 2 * ASIN(SQRT(
-        POWER(SIN((r.lat - ?1) * PI() / 180 / 2), 2) +
+        (SIN((r.lat - ?1) * PI() / 180 / 2) * SIN((r.lat - ?1) * PI() / 180 / 2)) +
         COS(?1 * PI() / 180) * COS(r.lat * PI() / 180) *
-        POWER(SIN((r.lng - ?2) * PI() / 180 / 2), 2)
+        (SIN((r.lng - ?2) * PI() / 180 / 2) * SIN((r.lng - ?2) * PI() / 180 / 2))
       ))
     ) AS distance_miles
   FROM ski_resorts r
