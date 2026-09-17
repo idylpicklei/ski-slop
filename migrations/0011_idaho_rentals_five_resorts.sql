@@ -14,6 +14,18 @@ SELECT 'pete-lanes-village-rental-center', 'Pete Lane''s Village Rental Center',
   'Sun Valley Village fitting desk for next-day Pete Lane sport packages delivered to Dollar or Bald bases'
 FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'sun-valley';
 
+-- Sources: boardbin.com/Rentals (adult full pkg board+boots+bindings $84.99; snowboard pkg) ; visitsunvalley.com/dining-shopping/board-bin-girl-street
+INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
+SELECT 'board-bin-ketchum', 'The Board Bin', reg.id, res.id, 43.6804, -114.3659, '180 4th St E, Ketchum, ID 83340', '208-726-1222', 'https://boardbin.com', 85, 'manual',
+  'Ketchum Fourth Street snowboard shop with published adult board-boot packages and in-house demos'
+FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'sun-valley';
+
+-- Sources: blacktieskis.com/sun-valley (Main Street storefront + booking; one-day walk-in sport price unpublished) ; blacktieskis.com/sun-valley/sun-valley-ski-rentals
+INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
+SELECT 'black-tie-ketchum', 'Black Tie Skis of Sun Valley', reg.id, res.id, 43.6832, -114.3668, '660 N Main St, Ketchum, ID 83340', '208-720-6935', 'https://www.blacktieskis.com/sun-valley', NULL, 'manual',
+  'Walk-in rental desk on North Main in Ketchum that also delivers fitted ski packages to lodging'
+FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'sun-valley';
+
 -- Sources: sites.google.com/view/home-town-sports/retail/winter-rentals (Adult Standard Alpine; prices unpublished) ; OSM shop Home Town Sports McCall
 INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
 SELECT 'home-town-sports-mccall', 'Home Town Sports', reg.id, res.id, 44.91, -116.0984, '300 E Lenora St, McCall, ID 83638', '208-634-2302', 'https://sites.google.com/view/home-town-sports/retail/winter-rentals', NULL, 'manual',
