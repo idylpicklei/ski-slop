@@ -44,6 +44,18 @@ SELECT 'alpine-shop-sandpoint', 'Alpine Shop Sandpoint', reg.id, res.id, 48.274,
   'Downtown Sandpoint Church Street shop with ski rentals and boot fitting before the drive up to Schweitzer'
 FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'schweitzer';
 
+-- Sources: sportsmanskihaus.com/info/rental-winter (Winter 2025/2026 Adult Alpine Skis w/ Boots and Poles $32/day; CDA phone on rates page) ; sportsmanskihaus.com/info/new-cda-store
+INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
+SELECT 'sportsman-ski-haus-cda', 'Sportsman & Ski Haus', reg.id, res.id, 47.6953, -116.789, '213 W Ironwood Dr, Coeur d''Alene, ID 83815', '208-772-0613', 'https://www.sportsmanskihaus.com', 32, 'manual',
+  'Ironwood Drive Coeur d''Alene shop with walk-in adult alpine packages about an hour south of Schweitzer'
+FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'schweitzer';
+
+-- Sources: geargaragecda.com/rentals/daily-ski-snowboard (Performance/Premium daily packages; poles add-on, one-day walk-in dollar amount unpublished) ; geargaragecda.com/faq
+INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
+SELECT 'gear-garage-cda', 'Gear Garage CDA', reg.id, res.id, 47.6734, -116.7673, '1325 E Sherman Ave, Coeur d''Alene, ID 83814', '208-661-3116', 'https://geargaragecda.com', NULL, 'manual',
+  'Sherman Avenue Coeur d''Alene shop with daily ski and snowboard packages and evening pickup for a Schweitzer morning'
+FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'schweitzer';
+
 -- Sources: mcusports.com/ski-rentals-boise (Adult Sport Package $50 full day; rentals Ski Shop only) ; OSM shop McU Sports 2314 N Bogus Basin Rd
 INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
 SELECT 'mcu-sports-bogus-basin-rd', 'McU Sports Ski Shop', reg.id, res.id, 43.6405, -116.2079, '2314 N Bogus Basin Rd, Boise, ID 83702', '208-336-2300', 'https://www.mcusports.com/ski-rentals-boise/', 50, 'manual',
