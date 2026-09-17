@@ -44,20 +44,26 @@ SELECT 'alpine-shop-sandpoint', 'Alpine Shop Sandpoint', reg.id, res.id, 48.274,
   'Downtown Sandpoint Church Street shop with ski rentals and boot fitting before the drive up to Schweitzer'
 FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'schweitzer';
 
--- Sources: mcusports.com/ski-rentals-boise (Adult Sport Package $50 full day) ; OSM shop McU Sports 2314 N Bogus Basin Rd
+-- Sources: mcusports.com/ski-rentals-boise (Adult Sport Package $50 full day; rentals Ski Shop only) ; OSM shop McU Sports 2314 N Bogus Basin Rd
 INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
 SELECT 'mcu-sports-bogus-basin-rd', 'McU Sports Ski Shop', reg.id, res.id, 43.6405, -116.2079, '2314 N Bogus Basin Rd, Boise, ID 83702', '208-336-2300', 'https://www.mcusports.com/ski-rentals-boise/', 50, 'manual',
   'Bogus Basin Road ski shop with adult sport packages and overnight pickup before the drive uphill'
 FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'bogus-basin';
 
--- Sources: mcusports.com/ski-rentals-boise (Adult Sport Package $50 full day; downtown store listed) ; mcusports.com
-INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
-SELECT 'mcu-sports-downtown-boise', 'McU Sports Downtown', reg.id, res.id, 43.6186, -116.2019, '822 W Jefferson St, Boise, ID 83702', '208-342-7734', 'https://www.mcusports.com/ski-rentals-boise/', 50, 'manual',
-  'Downtown Boise Jefferson Street storefront sharing McU adult sport ski package rates for Bogus Basin days'
-FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'bogus-basin';
-
--- Sources: greenwoodsskihaus.com/RENTALS (daily/half-day rentals; package price unpublished) ; OSM Bob Greenwood''s Ski Haus
+-- Sources: greenwoodsskihaus.com/RENTALS (daily/half-day sport rentals listed; package dollar amount unpublished in page text) ; OSM Bob Greenwood''s Ski Haus
 INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
 SELECT 'greenwoods-ski-haus', 'Greenwood''s Ski Haus', reg.id, res.id, 43.6414, -116.2074, '2400 N Bogus Basin Rd, Boise, ID 83702', '208-342-6808', 'https://greenwoodsskihaus.com/RENTALS', NULL, 'manual',
   'Bogus Basin Road shop offering daily ski and snowboard rentals beside the McU corridor'
+FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'bogus-basin';
+
+-- Sources: ridgelinebikenski.com/articles/boise-ski-rental-pg323.htm (daily ski/snowboard rentals advertised; walk-in sport price not on live site) ; MapQuest/Apple Maps 10100 W Overland Rd
+INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
+SELECT 'ridgeline-bike-and-ski-boise', 'Ridgeline Bike & Ski', reg.id, res.id, 43.5905, -116.3083, '10100 W Overland Rd, Boise, ID 83709', '208-376-9240', 'https://www.ridgelinebikenski.com/', NULL, 'manual',
+  'West Boise Overland Road bike-and-ski shop with walk-in daily alpine and snowboard packages for Treasure Valley trips'
+FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'bogus-basin';
+
+-- Sources: playitagainsports.com/locations/boise-id (Ski & Snowboard Rentals and Demos) ; Play It Again Sports Boise Facebook rental inventory post
+INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
+SELECT 'play-it-again-sports-boise', 'Play It Again Sports Boise', reg.id, res.id, 43.62, -116.2761, '7566 W Fairview Ave, Boise, ID 83704', '208-378-0053', 'https://playitagainsports.com/locations/boise-id/', NULL, 'manual',
+  'West Fairview new-and-used shop that rents alpine skis, boots, poles, and snowboards away from the mountain corridor'
 FROM regions reg, ski_resorts res WHERE reg.slug = 'us-id' AND res.slug = 'bogus-basin';
