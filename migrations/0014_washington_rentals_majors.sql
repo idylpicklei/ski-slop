@@ -38,6 +38,18 @@ SELECT 'eastside-cycleworks-leavenworth', 'Eastside Cycleworks', reg.id, res.id,
   'Leavenworth bike-and-ski shop renting new Rossignol alpine skis and boots by online reservation, about 32 road miles east of Stevens Pass'
 FROM regions reg, ski_resorts res WHERE reg.slug = 'us-wa' AND res.slug = 'stevens-pass';
 
+-- Sources: ospreyskiandsnowboardshop.com/downhill-ski-snowboard-rentals (Adult alpine skis, boots, poles $40/day) ; ospreyskiandsnowboardshop.com (10576 US Hwy 2 at Happy Wave; 509-548-6800)
+INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
+SELECT 'osprey-ski-and-snowboard-leavenworth', 'Osprey Ski and Snowboard Shop', reg.id, res.id, 47.58169, -120.61465, '10576 US Hwy 2, Leavenworth, WA 98826', '509-548-6800', 'https://ospreyskiandsnowboardshop.com', 40, 'manual',
+  'Happy Wave Hwy 2 shop east of Stevens Pass with walk-in adult alpine packages at a fixed daily rate'
+FROM regions reg, ski_resorts res WHERE reg.slug = 'us-wa' AND res.slug = 'stevens-pass';
+
+-- Sources: evo.com/pages/locations-snoqualmie-pass-ski-snowboard-rentals (Standard ski rental package walk-in $65; skis, poles, boots) ; evo.com/pages/locations-snoqualmie-pass (69802 SR 906 firehouse across from Summit West)
+INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
+SELECT 'evo-snoqualmie-pass', 'evo Snoqualmie Pass', reg.id, res.id, 47.42498, -121.41441, '69802 SR 906, Snoqualmie Pass, WA 98068', '425-386-4001', 'https://www.evo.com/pages/locations-snoqualmie-pass-ski-snowboard-rentals', 65, 'manual',
+  'Restored firehouse shop across from Summit West with published walk-in standard ski packages and premium demos'
+FROM regions reg, ski_resorts res WHERE reg.slug = 'us-wa' AND res.slug = 'the-summit-at-snoqualmie';
+
 -- Sources: summitatsnoqualmie.com/rentals (online-only reservations; 3-pack $305 and season rentals listed, single-day adult rate not published) ; summitatsnoqualmie.com/rentals/rental-pack (ski package = skis, boots, poles; base-area specific pickup)
 INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
 SELECT 'summit-at-snoqualmie-rental-shop', 'Summit at Snoqualmie Rental Shop', reg.id, res.id, 47.4247, -121.417, '1001 WA-906, Snoqualmie Pass, WA 98068', '425-434-7669', 'https://www.summitatsnoqualmie.com/rentals', NULL, 'manual',
@@ -104,14 +116,14 @@ SELECT 'mt-spokane-rental-shop', 'Mt. Spokane Rental Shop', reg.id, res.id, 47.9
   'Lodge 2 rental shop at Mount Spokane with Rossignol adult packages that include a helmet and a discount for night-ski sessions'
 FROM regions reg, ski_resorts res WHERE reg.slug = 'us-wa' AND res.slug = 'mount-spokane';
 
--- Sources: thespokanealpinehaus.com/services/ski-snowboard-rentals (Adult Ski/Board Daily Package $44.95, poles included) ; thespokanealpinehaus.com (2215 W Northwest Blvd location, 509-561-1103)
+-- Sources: thespokanealpinehaus.com/services/ski-snowboard-rentals (daily adult packages advertised; dollar amounts on page are unlabeled so standard package rate left NULL) ; thespokanealpinehaus.com (2215 W Northwest Blvd location, 509-561-1103)
 INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
-SELECT 'spokane-alpine-haus-northwest-blvd', 'Spokane Alpine Haus Northwest Blvd', reg.id, res.id, 47.68329, -117.44503, '2215 W Northwest Blvd, Spokane, WA 99205', '509-561-1103', 'https://www.thespokanealpinehaus.com', 45, 'manual',
+SELECT 'spokane-alpine-haus-northwest-blvd', 'Spokane Alpine Haus Northwest Blvd', reg.id, res.id, 47.68329, -117.44503, '2215 W Northwest Blvd, Spokane, WA 99205', '509-561-1103', 'https://www.thespokanealpinehaus.com', NULL, 'manual',
   'Northwest Boulevard Spokane ski shop fitting daily adult ski or board packages from 3 pm the day before a Mount Spokane trip'
 FROM regions reg, ski_resorts res WHERE reg.slug = 'us-wa' AND res.slug = 'mount-spokane';
 
--- Sources: thespokanealpinehaus.com/services/ski-snowboard-rentals (Adult Ski/Board Daily Package $44.95, poles included) ; thespokanealpinehaus.com (2925 S Regal St South Hill location, 509-534-4554)
+-- Sources: thespokanealpinehaus.com/services/ski-snowboard-rentals (daily adult packages advertised; dollar amounts on page are unlabeled so standard package rate left NULL) ; thespokanealpinehaus.com (2925 S Regal St South Hill location, 509-534-4554)
 INSERT OR IGNORE INTO ski_rentals (slug, name, region_id, nearest_resort_id, lat, lng, address, phone, website, daily_rate_usd, source, summary)
-SELECT 'spokane-alpine-haus-south-hill', 'Spokane Alpine Haus South Hill', reg.id, res.id, 47.62723, -117.36849, '2925 S Regal St, Spokane, WA 99223', '509-534-4554', 'https://www.thespokanealpinehaus.com', 45, 'manual',
+SELECT 'spokane-alpine-haus-south-hill', 'Spokane Alpine Haus South Hill', reg.id, res.id, 47.62723, -117.36849, '2925 S Regal St, Spokane, WA 99223', '509-534-4554', 'https://www.thespokanealpinehaus.com', NULL, 'manual',
   'South Hill branch of the Spokane Alpine Haus with the same day-before fitting and daily adult packages, returns due by noon the day after skiing'
 FROM regions reg, ski_resorts res WHERE reg.slug = 'us-wa' AND res.slug = 'mount-spokane';
