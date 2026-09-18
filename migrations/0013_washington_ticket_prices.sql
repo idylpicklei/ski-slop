@@ -25,17 +25,17 @@ UPDATE ski_resorts
 SET summary = 'Whatcom County ski area near Mount Shuksan, known for extreme Cascade snowfall and steep in-bounds terrain.'
 WHERE slug = 'mt-baker' AND summary IS NULL;
 
--- Sources: https://skiwhitepass.com/online-day-ticket-sales (2026/27 adult tickets start $89 on peak days; inventory-driven pricing) ; https://en.wikipedia.org/wiki/White_Pass_Ski_Area (U.S. 12; 2000 ft vertical; between Rainier and Adams)
+-- Sources: https://skiwhitepass.com/the-mountain/lift-tickets (adult peak capped at $119; starts $89 peak / $69 off-peak) ; https://en.wikipedia.org/wiki/White_Pass_Ski_Area (U.S. 12; 2000 ft vertical; between Rainier and Adams)
 UPDATE ski_resorts
-SET ticket_price_usd = 89
+SET ticket_price_usd = 119
 WHERE slug = 'white-pass' AND ticket_price_usd IS NULL;
 UPDATE ski_resorts
 SET summary = 'Central Cascades ski area on U.S. 12 with 2,000 ft of vertical between Mount Rainier and Mount Adams.'
 WHERE slug = 'white-pass' AND summary IS NULL;
 
--- Sources: https://www.missionridge.com/news/1-4-26-conditions-report/ (highest adult 25-69 advance day rate visible for 2025-26; $115 on 1/4/26; tickets page has no set price) ; https://en.wikipedia.org/wiki/Mission_Ridge_Ski_Area (Wenatchee; 2250 ft vertical; night skiing; NE slopes)
+-- Sources: https://www.missionridge.com/news/12-27-25-conditions-report/ (adult 25-69 advance day $125; highest official rate seen for 2025-26) ; https://en.wikipedia.org/wiki/Mission_Ridge_Ski_Area (Wenatchee; 2250 ft vertical; night skiing; NE slopes)
 UPDATE ski_resorts
-SET ticket_price_usd = 115
+SET ticket_price_usd = 125
 WHERE slug = 'mission-ridge' AND ticket_price_usd IS NULL;
 UPDATE ski_resorts
 SET summary = 'East Cascade ski area above Wenatchee with 2,250 ft of vertical, night skiing, and northeast-facing slopes.'
