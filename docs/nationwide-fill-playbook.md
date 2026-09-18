@@ -10,6 +10,16 @@ Each tier is its own job with its own budget. Never mix tiers in one prompt.
 2. **Comparable prices (the token budget).** Adult peak `ticket_price_usd` for resorts, adult standard one-day ski package `daily_rate_usd` for rentals, and original summaries. The agent delivers SQL migrations that follow `docs/resort-research-guide.md` and `docs/rental-research-guide.md`. This tier is where the tokens go.
 3. **Freshness (later).** The Deal Scanner refreshes `daily_rate_usd` on a schedule. It is not implemented. The queue stub in `workers/agents/index.ts` records a failed run with "DealScannerAgent not implemented yet". See `docs/deal-scanner-agent.md`.
 
+## Region ship bar
+
+A skeleton alone is not a finished region for a directory site. A region page with names but no prices, no summaries, and no rentals gives a skier nothing to compare. Majors are the region's destination resorts, not its town hills. Before you call a region usable, check that each major has the following:
+
+- a filled `ticket_price_usd`, or an explicit `NULL` with a `-- Sources:` comment that says why
+- an original summary
+- at least one rental nearby
+
+Run the templates as one loop per region. After template 1 lands, run template 2 for the region's majors. Template 2 fills tickets and missing summaries. Then run template 3 for the same slugs. Finish that loop before you move to another region you care about.
+
 ## Token rules
 
 - Work one region at a time.
@@ -26,7 +36,7 @@ Each tier is its own job with its own budget. Never mix tiers in one prompt.
 
 ## Rollout order
 
-1. Build the skeleton for every US region. For each `us-xx`, run `scripts/enrich-region.mjs us-xx` (needs `ADMIN_TOKEN` and `SITE`) or launch template 1. Run the enrich agent before any price job for that region. Its upsert in `workers/agents/tools/d1.ts` overwrites `summary`, `name`, `lat`, and `lng` on a slug collision and leaves `ticket_price_usd` and `daily_rate_usd` alone.
+1. Build the skeleton for a US region. Run `scripts/enrich-region.mjs us-xx` (needs `ADMIN_TOKEN` and `SITE`) or launch template 1. Run the enrich agent before any price job for that region. Its upsert in `workers/agents/tools/d1.ts` overwrites `summary`, `name`, `lat`, and `lng` on a slug collision and leaves `ticket_price_usd` and `daily_rate_usd` alone. The skeleton may land first. The next jobs for that region are template 2 and then template 3 for its majors. Run both before you move to another region you care about.
 2. Price the top 50 to 100 national day-trip resorts. Use template 2 in batches of about 10 slugs, the size of `0009_idaho_ticket_prices.sql`. One migration per batch.
 3. Fill rentals around those resorts. Use template 3, resort-outward, a few resorts per job.
 4. Move to the next tier of hills. Repeat steps 2 and 3 with smaller resorts.
