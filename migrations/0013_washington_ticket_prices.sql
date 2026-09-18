@@ -17,9 +17,9 @@ UPDATE ski_resorts
 SET summary = 'Closest major ski complex to Seattle on I-90, combining Alpental and three Summit bases at Snoqualmie Pass.'
 WHERE slug = 'the-summit-at-snoqualmie' AND summary IS NULL;
 
--- Sources: https://www.mtbaker.us/tickets-and-passes/daily-lift-tickets-2025-26/ (2025-26 peak all-day adult 16-59 $104.44 tax not included; whole USD 104) ; https://en.wikipedia.org/wiki/Mt._Baker_Ski_Area (Whatcom Co.; extreme snowfall; Mt Shuksan views)
+-- Sources: https://www.mtbaker.us/tickets-and-passes/daily-lift-tickets/ (2026-27 peak all-day adult 16-59 $115.42 tax not included; whole USD 115) ; https://en.wikipedia.org/wiki/Mt._Baker_Ski_Area (Whatcom Co.; extreme snowfall; Mt Shuksan views)
 UPDATE ski_resorts
-SET ticket_price_usd = 104
+SET ticket_price_usd = 115
 WHERE slug = 'mt-baker' AND ticket_price_usd IS NULL;
 UPDATE ski_resorts
 SET summary = 'Whatcom County ski area near Mount Shuksan, known for extreme Cascade snowfall and steep in-bounds terrain.'
