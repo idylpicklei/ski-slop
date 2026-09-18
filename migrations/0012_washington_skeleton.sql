@@ -75,3 +75,8 @@ FROM regions WHERE slug = 'us-wa';
 INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft, trail_count, website, source, summary)
 SELECT 'leavenworth-ski-hill', 'Leavenworth Ski Hill', id, 47.6144, -120.6686, NULL, NULL, 'https://skileavenworth.com', 'manual', NULL
 FROM regions WHERE slug = 'us-wa';
+
+-- Sources: https://www.meanylodge.org ; https://en.wikipedia.org/wiki/Meany_Lodge ; https://www.mountaineers.org/locations-lodges/meany-lodge/event-details/winter-weekends
+INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft, trail_count, website, source, summary)
+SELECT 'meany-lodge', 'Meany Lodge', id, 47.2803, -121.3206, NULL, NULL, 'https://www.meanylodge.org', 'manual', NULL
+FROM regions WHERE slug = 'us-wa';
