@@ -20,7 +20,7 @@ The script walks `priorityRegions` from the top. The first region that matches a
 
 For that region, the first matching rule wins.
 
-1. No resort rows in `migrations/` means a skeleton job. The prompt is template 1 from the [Nationwide fill playbook](./nationwide-fill-playbook.md).
+1. No resort rows in `migrations/`, or a listed major with no resort row, means a skeleton job. The prompt is template 1 from the [Nationwide fill playbook](./nationwide-fill-playbook.md).
 2. Resort rows exist and `majors` is missing or empty means you still need majors in `docs/fill-priority.json`. The prompt is template 1, plus a note to name majors before a ticket or rental job.
 3. A listed major lacks a ticket attempt or a summary means a ticket job. The prompt is template 2, at most 10 slugs.
 4. A listed major lacks a rental means a rental job. The prompt is template 3, at most 6 slugs, with 3 shops per resort.
@@ -36,7 +36,7 @@ The reader matches `INSERT` and `UPDATE` text. If a row looks wrong, open the mi
 2. Start a cloud agent with that prompt as the task.
 3. Let the agent open one migration pull request.
 
-Merge the pull request yourself. After you review and apply the local migration, run `npm run db:migrate:remote` yourself.
+Never auto-merge. Never run the remote migrate from an agent. Merge the pull request yourself. After you review and apply the local migration, run `npm run db:migrate:remote` yourself.
 
 ## Review, merge, and apply
 

@@ -27,6 +27,7 @@ import { fileURLToPath } from "node:url";
  *   regionSlug: string,
  *   resortCount: number,
  *   majors: string[],
+ *   majorsAbsent: string[],
  *   majorsMissingTicket: string[],
  *   majorsMissingSummary: string[],
  *   majorsMissingRental: string[]
@@ -131,9 +132,13 @@ function missingTicketOrSummary(coverage) {
 const TIER_RULES = [
   {
     tier: "skeleton",
-    when: (coverage) => coverage.resortCount === 0,
+    when: (coverage) => coverage.resortCount === 0 || coverage.majorsAbsent.length > 0,
     slugs: () => [],
     cap: 0,
+    noteFrom: (coverage) =>
+      coverage.majorsAbsent.length > 0
+        ? `majors with no resort row: ${coverage.majorsAbsent.join(", ")}`
+        : undefined,
   },
   {
     tier: "define-majors",
@@ -348,6 +353,7 @@ function buildCoverage(priority, resorts, onlyRegion) {
       regionSlug,
       resortCount: inRegion.length,
       majors,
+      majorsAbsent: majors.filter((slug) => !bySlug.has(slug)),
       majorsMissingTicket: majors.filter((slug) => !bySlug.get(slug)?.ticketAttempted),
       majorsMissingSummary: majors.filter((slug) => !bySlug.get(slug)?.hasSummary),
       majorsMissingRental: majors.filter((slug) => !bySlug.get(slug)?.hasRental),
@@ -365,7 +371,8 @@ function pickNext(coverages, opts) {
       regionSlug: coverage.regionSlug,
       slugs: rule.cap > 0 ? rule.slugs(coverage).slice(0, rule.cap) : [],
     };
-    if (rule.note) job.note = rule.note;
+    const note = rule.note ?? (typeof rule.noteFrom === "function" ? rule.noteFrom(coverage) : undefined);
+    if (note) job.note = note;
     if (rule.shopsPerResort) job.shopsPerResort = rule.shopsPerResort;
     return job;
   }
