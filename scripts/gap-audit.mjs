@@ -1,14 +1,4 @@
 #!/usr/bin/env node
-/**
- * Print migration coverage and the next nationwide-fill prompt.
- *
- * Usage:
- *   node scripts/gap-audit.mjs
- *   node scripts/gap-audit.mjs --next
- *   node scripts/gap-audit.mjs --json
- *   node scripts/gap-audit.mjs --region us-or
- *   npm run gap:next
- */
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -226,9 +216,6 @@ function loadRegionSlugs(regionsDataPath) {
   return regions;
 }
 
-/**
- * Sources comments contain semicolons, so drop full-line comments before splitting.
- */
 function stripSqlComments(text) {
   return text
     .split("\n")
@@ -298,10 +285,6 @@ function applyStatement(resorts, stmt) {
   }
 }
 
-/**
- * A Sources line that says the price was left NULL is a ticket attempt.
- * Migrations never assign ticket_price_usd to NULL.
- */
 function markIntentionalNullTickets(raw, resorts) {
   const lines = raw.split("\n");
   for (let i = 0; i < lines.length; i += 1) {
