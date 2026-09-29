@@ -1,0 +1,46 @@
+{
+  "priorityRegions": [
+    "us-or",
+    "us-co",
+    "us-ut",
+    "us-mt",
+    "us-ca",
+    "us-vt",
+    "us-nh",
+    "us-ny",
+    "us-al",
+    "us-ak",
+    "us-az",
+    "us-ct",
+    "us-me",
+    "us-ma",
+    "us-mi",
+    "us-mn",
+    "us-nm",
+    "us-nc",
+    "us-pa",
+    "us-wv",
+    "us-wi",
+    "us-wy"
+  ],
+  "majors": {
+    "us-id": [
+      "sun-valley",
+      "schweitzer",
+      "bogus-basin",
+      "brundage",
+      "tamarack",
+      "silver-mountain"
+    ],
+    "us-wa": [
+      "crystal-mountain",
+      "stevens-pass",
+      "the-summit-at-snoqualmie",
+      "mt-baker",
+      "white-pass",
+      "mission-ridge",
+      "49-degrees-north",
+      "mount-spokane"
+    ]
+  }
+}
