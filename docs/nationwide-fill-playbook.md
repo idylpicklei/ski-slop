@@ -1,5 +1,9 @@
 # Nationwide fill playbook
 
+## Print the next job
+
+Run `npm run gap:next` to print coverage and one prompt. [How to run the next fill job](./fill-automation.md) explains how that prompt is chosen and how to launch it.
+
 Fill the US ski directory with capped cloud-agent jobs that spend tokens on prices, not on context. Idaho (`us-id`) and the two research guides are the template. Each future state job is a copy-paste prompt from the templates at the end of this page. You launch the job, review the migration PR, and apply the migration yourself.
 
 ## Three-tier pipeline
