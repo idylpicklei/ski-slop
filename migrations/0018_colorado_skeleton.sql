@@ -106,17 +106,12 @@ INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft
 SELECT 'chapman-hill', 'Chapman Hill Ski Area', id, 37.2823, -107.8681, NULL, NULL, 'https://www.durangoco.gov/544/Ski-Area', 'manual', NULL
 FROM regions WHERE slug = 'us-co';
 
--- Sources: https://skilakecity.com ; https://lakecity.com/ski-hill-and-terrain-park/ ; https://en.wikipedia.org/wiki/List_of_Colorado_ski_resorts
-INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft, trail_count, website, source, summary)
-SELECT 'lake-city-ski-hill', 'Lake City Ski Hill', id, 38.0105, -107.3137, NULL, NULL, 'https://skilakecity.com', 'manual', NULL
-FROM regions WHERE slug = 'us-co';
-
--- Sources: https://www.uncovercolorado.com/skiing-snowboarding/lees-ski-hill/ ; https://en.wikipedia.org/wiki/List_of_Colorado_ski_resorts
-INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft, trail_count, website, source, summary)
-SELECT 'lees-ski-hill', 'Lee''s Ski Hill', id, 38.0189, -107.6689, NULL, NULL, NULL, 'manual', NULL
-FROM regions WHERE slug = 'us-co';
-
 -- Sources: https://hoedownhill.com/skiing-boarding/ ; https://hoedownhill.com/tickets/ ; https://en.wikipedia.org/wiki/List_of_Colorado_ski_resorts
 INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft, trail_count, website, source, summary)
 SELECT 'hoedown-hill', 'Hoedown Hill', id, 40.4542, -104.9295, NULL, NULL, 'https://hoedownhill.com', 'manual', NULL
+FROM regions WHERE slug = 'us-co';
+
+-- Sources: https://cucharamountainpark.org/ ; https://coloradosun.com/2026/01/19/cuchara-mountain-park-opens-chairlift/ ; https://www.cpr.org/2026/05/21/nonprofit-first-winter-at-cuchara-mountain/
+INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft, trail_count, website, source, summary)
+SELECT 'cuchara-mountain-park', 'Cuchara Mountain Park', id, 37.3505, -105.1241, NULL, NULL, 'https://cucharamountainpark.org', 'manual', NULL
 FROM regions WHERE slug = 'us-co';
