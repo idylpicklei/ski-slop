@@ -53,7 +53,7 @@ FROM regions WHERE slug = 'us-co';
 
 -- Sources: https://www.purgatory.ski ; https://en.wikipedia.org/wiki/Purgatory_Resort ; https://www.coloradoski.com/resorts/
 INSERT OR IGNORE INTO ski_resorts (slug, name, region_id, lat, lng, elevation_ft, trail_count, website, source, summary)
-SELECT 'purgatory', 'Purgatory Resort', id, 37.6303, -107.8367, NULL, NULL, 'https://www.purgatory.ski', 'manual', NULL
+SELECT 'purgatory', 'Purgatory Resort', id, 37.6308, -107.8150, NULL, NULL, 'https://www.purgatory.ski', 'manual', NULL
 FROM regions WHERE slug = 'us-co';
 
 -- Sources: https://powderhorn.com ; https://en.wikipedia.org/wiki/Powderhorn_Resort ; https://www.coloradoski.com/resorts/
