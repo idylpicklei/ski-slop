@@ -51,6 +51,25 @@
       "hoodoo",
       "mt-ashland",
       "anthony-lakes"
+    ],
+    "us-co": [
+      "vail",
+      "aspen-snowmass",
+      "breckenridge",
+      "telluride",
+      "keystone",
+      "beaver-creek",
+      "copper-mountain",
+      "winter-park",
+      "steamboat",
+      "crested-butte",
+      "arapahoe-basin",
+      "loveland",
+      "eldora",
+      "monarch-mountain",
+      "purgatory",
+      "wolf-creek",
+      "silverton-mountain"
     ]
   }
 }
