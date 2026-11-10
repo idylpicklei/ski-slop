@@ -34,9 +34,9 @@ UPDATE ski_resorts
 SET summary = 'Independent Continental Divide ski area near Salida with all-natural snow and modest crowds.'
 WHERE slug = 'monarch-mountain' AND summary IS NULL;
 
--- Sources: https://www.purgatory.ski/season-pass-faq/ (2026-27 variable daily rate $9 to $309; no window rate) ; https://www.purgatory.ski/mountain/lift-tickets/ (dynamic online calendar) ; https://en.wikipedia.org/wiki/Purgatory_Resort (Durango; San Juans; Power Kids)
+-- Sources: https://store.purgatory.ski/Calendar.aspx?Category=VARIABLE&Department=TICKET%3AWIN&Item=1DAY (2026-27 adult 1-day calendar; highest listed day $95 on Dec 31 2026 and Jan 1 2027 as of 10 Nov 2026) ; https://www.purgatory.ski/season-pass-faq/ (no window rate; FAQ band $9-$309 not listed on any calendar date) ; https://en.wikipedia.org/wiki/Purgatory_Resort (Durango; San Juans)
 UPDATE ski_resorts
-SET ticket_price_usd = 309
+SET ticket_price_usd = 95
 WHERE slug = 'purgatory' AND ticket_price_usd IS NULL;
 UPDATE ski_resorts
 SET summary = 'Durango-area San Juan resort with more than 100 trails and free skiing for kids 12 and under.'
@@ -50,9 +50,9 @@ UPDATE ski_resorts
 SET summary = 'Southern Colorado ski area near Pagosa Springs known for deep natural snow on the Continental Divide.'
 WHERE slug = 'wolf-creek' AND summary IS NULL;
 
--- Sources: https://silvertonmountain.com/experience/guided/ (2026-27 guided adult day starting at $249; early/late $199) ; https://en.wikipedia.org/wiki/Silverton_Mountain (expert-only; guided season; no groomed trails)
+-- Sources: https://silvertonmountain.com/mountain/pricing/ (guided day from $249; spring unguided $99 only) ; https://en.wikipedia.org/wiki/Silverton_Mountain (expert-only; guided season; no groomed trails). Peak walk-up NULL: main-season day product is a guided package, not a regular adult walk-up day ticket.
 UPDATE ski_resorts
-SET ticket_price_usd = 249
+SET ticket_price_usd = NULL
 WHERE slug = 'silverton-mountain' AND ticket_price_usd IS NULL;
 UPDATE ski_resorts
 SET summary = 'Expert-only San Juan mountain near Silverton with guided lift-served terrain and no groomed trails.'
