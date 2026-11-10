@@ -2,9 +2,9 @@
 -- Safe UPDATEs only fill NULL ticket_price_usd and NULL summary; never overwrite a verified value.
 -- Peak = highest regular adult day / walk-up window rate per docs/resort-research-guide.md.
 
--- Sources: https://www.arapahoebasin.com/25-26-passes-and-packs/ (full-day tickets vary by date; no static window table) ; https://www.summitdaily.com/news/christmas-lift-ticket-prices-colorado/ (2025-26 peak same-day adult $199 Dec 26-Jan 1) ; https://en.wikipedia.org/wiki/Arapahoe_Basin (Continental Divide; Dillon; long season)
+-- Sources: https://www.arapahoebasin.com/tickets-and-passes/ (full-day tickets vary by date; no adult day rate printed) ; https://www.arapahoebasin.com/pass-benefits-26-27/ (friends-and-family discount off window rate; dollar amount unpublished) ; https://en.wikipedia.org/wiki/Arapahoe_Basin (Continental Divide; Dillon; long season). Peak walk-up NULL: official tickets page and booking store did not expose a readable adult day rate; third-party holiday figures alone are not used.
 UPDATE ski_resorts
-SET ticket_price_usd = 199
+SET ticket_price_usd = NULL
 WHERE slug = 'arapahoe-basin' AND ticket_price_usd IS NULL;
 UPDATE ski_resorts
 SET summary = 'High-alpine Front Range ski area on the Continental Divide above Dillon with one of Colorado''s longest seasons.'
